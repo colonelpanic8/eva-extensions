@@ -11,7 +11,6 @@ packages/
   caffeine.json
   messages.json
   mova.json
-  org-agenda.json
 docs/
 ```
 

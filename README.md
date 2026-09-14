@@ -34,10 +34,7 @@ app matching, versioning, and publishing your own repository.
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
 | [Mova](packages/mova.json) | Create and manage todos through Mova's Android intents | Format and intent construction verified against Mova 7.0.1; device test deferred |
-| [Org agenda](packages/org-agenda.json) | Read/search/capture/complete through an HTTP API, plus a mova deep link | JVM-tested; server deployment/device test deferred |
 
-The org-agenda example requires its documented `q`/`limit`/`total` and strict
-completion API. See [its prerequisites](docs/authoring.md#org-agenda-prerequisites).
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
 installable `packages/` directory.

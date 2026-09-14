@@ -102,7 +102,7 @@ A `select` binding has exactly `kind: "select"`, `argument`, `present`, and
 `absent`. It picks a fully declared branch based on presence of the named tool
 argument, not its truthiness or a default. Nested selects are rejected. Both
 branches must agree with the capability's execution mode; effects account for
-both. See `complete_todo` and `custom_view` in [org agenda](../packages/org-agenda.json).
+both.
 
 ## Execution, effects, grants
 

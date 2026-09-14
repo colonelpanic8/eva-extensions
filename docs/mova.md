@@ -1,9 +1,8 @@
 # Mova package notes
 
 The [Mova package](../packages/mova.json) targets Mova 7.0.1's Android
-`mova://` interface. It is separate from the [Org agenda](../packages/org-agenda.json)
-HTTP package: Mova uses the active server and credentials already configured in
-the app.
+`mova://` interface. Mova uses the active server and credentials already
+configured in the app rather than exposing them through this package.
 
 EVA treats every successful Android activity launch as `HANDED_OFF`; it does not
 consume Mova's activity result extras. The package therefore does not claim that

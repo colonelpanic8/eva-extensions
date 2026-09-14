@@ -77,8 +77,8 @@ choose an arbitrary action, component, origin, or shell command.
 
 For a fixed activity and integer extras, copy [Caffeine](../packages/caffeine.json).
 For opaque URI data and a named validator, see [Messages](../packages/messages.json).
-For HTTP nested body mappings, conditional routes, and item projections, see
-[HTTP notes](examples/http-notes.json) and [org agenda](../packages/org-agenda.json).
+For HTTP nested body mappings and item projections, see
+[HTTP notes](examples/http-notes.json).
 
 ## Describe effects and outcomes honestly
 
@@ -117,26 +117,6 @@ installs, use a stable raw HTTPS source or Git repository.
 Timeouts after submission mean `UNKNOWN`, not cancellation. Check the target
 before retrying a write. An imported mutation following a tool result needs a
 separate user request; “search then complete” should be two requests in this version.
-
-## Org-agenda prerequisites
-
-The example is not a generic adapter for every older org-agenda-api deployment.
-It expects:
-
-- `GET /agenda?span=&date=&include_overdue=`.
-- `GET /get-all-todos?q=&limit=`, with `todos` and integer `total` describing
-  matches before the server limit.
-- `POST /capture` with `template` (default `default`) and `values.Title`.
-- `POST /complete` with fixed `strict: true`, plus `id` or
-  `file` + `pos` + exact `title`. A conflict must return HTTP 409 without a
-  mutation; the package relies on that guarantee.
-- `GET /custom-views` to list views and `GET /custom-view?key=` to run one.
-
-Those server additions were implemented/tested but deployment and EVA HTTP device
-verification were deferred. Configure the `org-agenda` basic-auth reference and
-your HTTPS origin before using it. Its `mova://create?title=` example is a handoff
-and requires mova to be signed in. `mova://capture` is a different, title-less
-quick-capture dialog.
 
 APIs without server search can use the local `items.filter` primitive shown in
 [HTTP notes](examples/http-notes.json). That searches only returned data; it does
