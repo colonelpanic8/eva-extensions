@@ -3,7 +3,8 @@
 Declarative JSON plugins for EVA. Updating this repository can add capabilities
 without rebuilding EVA or modifying a target app, within EVA's supported bindings.
 
-In EVA, open Extensions, enter the raw HTTPS URL of `index.json`, refresh,
+In EVA, open Extensions → Browse, use
+`https://raw.githubusercontent.com/colonelpanic8/eva-plugins/main/index.json`, refresh,
 preview a package, and install it. Then enable the extension and approve each
 write action separately. Reconnect the conversation to use newly enabled actions.
 
@@ -18,4 +19,4 @@ Increase its three-part version for changed content, then run
 Index hashes cover exact file bytes. EVA previews updates and invalidates grants
 when approved content changes. Package IDs do not authenticate publishers.
 
-This checkout is prepared locally; it has not been published to GitHub.
+Repository: https://github.com/colonelpanic8/eva-plugins
