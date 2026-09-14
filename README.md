@@ -7,11 +7,11 @@ Packages contain data, never executable code.
 
 ## Install a plugin
 
-In EVA, open **Extensions → Browse**, enter this repository URL, and select
+In EVA, open **Extensions → Browse**, enter this Git repository URL, and select
 **Refresh plugin repository**:
 
 ```text
-https://raw.githubusercontent.com/colonelpanic8/eva-plugins/main/index.json
+https://github.com/colonelpanic8/eva-plugins.git
 ```
 
 Preview and install a package, then enable it in **Installed**. Expand its row to
@@ -26,7 +26,7 @@ file**. Use raw file URLs, not GitHub's HTML “blob” pages.
 
 Start with the [authoring guide](docs/authoring.md), then use the
 [complete v1 format reference](docs/package-format.md). The
-[repository and update guide](docs/repositories.md) explains indexes, hashes,
+[repository and update guide](docs/repositories.md) explains repository layout,
 app matching, versioning, and publishing your own repository.
 
 | Package | What it does | Verification |
@@ -39,8 +39,8 @@ app matching, versioning, and publishing your own repository.
 The org-agenda example requires its documented `q`/`limit`/`total` and strict
 completion API. See [its prerequisites](docs/authoring.md#org-agenda-prerequisites).
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
-local filtering and write evidence against a hypothetical API; it is not listed
-in the installable index.
+local filtering and write evidence against a hypothetical API; it is outside the
+installable `packages/` directory.
 
 The Mova package targets the Android app rather than the org-agenda HTTP API.
 See its [supported action and ContentProvider notes](docs/mova.md), including why
@@ -54,10 +54,8 @@ AppFunctions is another adapter, not a binding kind in these JSON files.
 ## Contribute
 
 Keep each plugin in one `packages/<name>.json` file. Increase its three-part
-version when content changes, run `python3 update-index.py`, and commit the file
-and generated index together. The generator creates hashes; it is **not** a
-package-schema validator. Validate through EVA's preview and test the actual
-action before claiming device support. Never commit credentials.
+version when content changes and commit that file. Validate through EVA's preview
+and test the actual action before claiming device support. Never commit credentials.
 
 Format documentation was checked against EVA
 `32e8e14` (2026-09-14).

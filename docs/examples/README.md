@@ -1,9 +1,9 @@
 # HTTP notes example
 
 [http-notes.json](http-notes.json) is a complete, parser-valid package for a
-**hypothetical** API. It is outside the repository index and does not point to a
-working server. Replace the origin and configure the named `notes` basic-auth
-reference to use an API with this contract.
+**hypothetical** API. It is outside the installable `packages/` directory and
+does not point to a working server. Replace the origin and configure the named
+`notes` basic-auth reference to use an API with this contract.
 
 A GET /notes response:
 

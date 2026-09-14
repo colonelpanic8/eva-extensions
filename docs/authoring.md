@@ -109,10 +109,10 @@ re-enablement, even if only descriptive text changed.
    Test writes only against data you intend to change.
 7. Check the target app/server independently. Do not infer completion from model prose.
 8. Add the file to `packages/`, bump its version when replacing a published
-   definition, and regenerate the index as described in [repositories](repositories.md).
+   definition, then commit and publish the package as described in [repositories](repositories.md).
 
 File reimports create separate instances. For testing updates rather than fresh
-installs, use a stable raw HTTPS source or repository index.
+installs, use a stable raw HTTPS source or Git repository.
 
 Timeouts after submission mean `UNKNOWN`, not cancellation. Check the target
 before retrying a write. An imported mutation following a tool result needs a
@@ -148,7 +148,7 @@ not fetch missing pages or provide strict write semantics to an older server.
 | --- | --- |
 | “Unexpected or missing fields” | Exact names and required fields in the [reference](package-format.md); unknown keys are rejected |
 | Preview fails for a GitHub URL | Use `raw.githubusercontent.com`, not a `github.com/.../blob/...` page |
-| Hash mismatch | Regenerate/publish the index, then refresh in EVA; hashes cover exact bytes |
+| Repository does not refresh | Confirm the public HTTPS clone URL ends in `.git` and `packages/` contains valid JSON files |
 | Changed package cannot install | Increase `version`; changed content at the same version and downgrades are refused |
 | Plugin visible but model cannot use it | Enable/grant, reconnect, and check catalog overflow/availability |
 | App not detected | Matching depends on Android visibility; try manual import and check actual intent handling |
