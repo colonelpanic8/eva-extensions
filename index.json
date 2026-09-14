@@ -20,6 +20,16 @@
       "androidPackages": []
     },
     {
+      "id": "android.mova",
+      "version": "0.1.0",
+      "title": "Mova",
+      "url": "packages/mova.json",
+      "sha256": "552d217aa31865d3f0b2c690f07fce466c9656c8bfdddd905dd08fa53bcf80d4",
+      "androidPackages": [
+        "com.colonelpanic.mova"
+      ]
+    },
+    {
       "id": "community.org-agenda",
       "version": "0.2.1",
       "title": "Org agenda",

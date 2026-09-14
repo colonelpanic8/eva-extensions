@@ -33,6 +33,7 @@ app matching, versioning, and publishing your own repository.
 | --- | --- | --- |
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
+| [Mova](packages/mova.json) | Create and manage todos through Mova's Android intents | Format and intent construction verified against Mova 7.0.1; device test deferred |
 | [Org agenda](packages/org-agenda.json) | Read/search/capture/complete through an HTTP API, plus a mova deep link | JVM-tested; server deployment/device test deferred |
 
 The org-agenda example requires its documented `q`/`limit`/`total` and strict
@@ -40,6 +41,10 @@ completion API. See [its prerequisites](docs/authoring.md#org-agenda-prerequisit
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is not listed
 in the installable index.
+
+The Mova package targets the Android app rather than the org-agenda HTTP API.
+See its [supported action and ContentProvider notes](docs/mova.md), including why
+provider-backed template and todo reads are not exposed by the current package.
 
 These documents describe the declarative package protocol. EVA's separate
 installed-service AIDL protocol (in EVA’s `docs/extension-protocol.md`)
