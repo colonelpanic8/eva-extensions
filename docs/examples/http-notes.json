@@ -1,0 +1,142 @@
+{
+  "formatVersion": 1,
+  "id": "example.http-notes",
+  "version": "0.1.0",
+  "title": "HTTP notes (hypothetical API)",
+  "androidPackages": [],
+  "capabilities": [
+    {
+      "tool": {
+        "name": "search",
+        "description": "Search only the notes returned by the configured example API; no additional pages are fetched.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "q": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "q"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "title": "Search returned notes",
+      "effects": "read",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 30000,
+        "cancellation": "none",
+        "idempotency": "none",
+        "reconciliation": "none"
+      },
+      "binding": {
+        "kind": "http",
+        "origin": "https://notes.example.com",
+        "method": "GET",
+        "path": "/notes",
+        "parameters": [],
+        "credential": "notes",
+        "maxResponseBytes": 262144,
+        "result": {
+          "maxBytes": 4096,
+          "items": {
+            "arrayPaths": [
+              "/notes"
+            ],
+            "line": "id={id} title={title} category={category}",
+            "fields": {
+              "id": {
+                "pointer": "/id",
+                "type": "string",
+                "required": true
+              },
+              "title": {
+                "pointer": "/title",
+                "type": "string",
+                "required": true
+              },
+              "category": {
+                "pointer": "/category",
+                "type": "string"
+              }
+            },
+            "maxItems": 20,
+            "truncationNote": "Only a bounded set of returned notes is shown.",
+            "totalPointer": "/total",
+            "filter": {
+              "fields": [
+                "/title",
+                "/category"
+              ],
+              "argument": "q"
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": {
+        "name": "create",
+        "description": "Create a note through the configured hypothetical API. Completion requires a terminal status of created in its response.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "title": "Create note",
+      "effects": "write",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 30000,
+        "cancellation": "none",
+        "idempotency": "none",
+        "reconciliation": "none"
+      },
+      "binding": {
+        "kind": "http",
+        "origin": "https://notes.example.com",
+        "method": "POST",
+        "path": "/notes",
+        "parameters": [],
+        "credential": "notes",
+        "requestBody": {
+          "fields": {
+            "title": {
+              "argument": "title",
+              "type": "string"
+            },
+            "source": {
+              "value": "eva",
+              "type": "string"
+            }
+          }
+        },
+        "maxResponseBytes": 16384,
+        "result": {
+          "pointer": "/note",
+          "maxBytes": 4096,
+          "evidence": {
+            "pointer": "/status",
+            "equals": "created"
+          }
+        }
+      }
+    }
+  ]
+}
