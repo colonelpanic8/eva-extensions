@@ -30,11 +30,14 @@ workspace form (project, model, isolation), which a link cannot fill.
 
 ## Where the IDs come from
 
-A package cannot read from Paseo: there is no content provider and no HTTPS
-API reachable from the phone without the app's pairing secrets. Listing is
-instead served by Paseo's installed extension service (EVA protocol v1,
-action `com.colonelpanic.eva.action.EXTENSION`), which EVA discovers on its
-own and which exposes `list_workspaces` and `list_agents` from a catalog Paseo
-publishes while it is open. Enable that extension in EVA beside this package;
-the model lists, picks an ID, and hands it to a capability here. Without it,
-IDs have to come from the user or a prior conversation.
+`list_workspaces` and `list_agents` are `android.content` reads of Paseo's
+provider at `content://sh.paseo.assistant/{workspaces,agents}` with typed `q`,
+`workspaceId`, and `limit` query slots. Paseo publishes the catalog behind
+them while it is open, so rows are as fresh as the last time the app was in
+the foreground; a workspace created since then is missing until Paseo opens
+again. The provider exports no dangerous permission and gates callers to
+EVA's package itself, so no device permission setup is needed; EVA's manifest
+lists the authority for package visibility. The intended flow is list, pick an
+`id`, then hand it to `open_workspace`, `open_agent`, or the prompt
+capabilities. A debug build of Paseo uses `sh.paseo.debug.assistant` and is
+not reachable from this package.

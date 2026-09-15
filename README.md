@@ -34,7 +34,7 @@ app matching, versioning, and publishing your own repository.
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
 | [Mova](packages/mova.json) | Create and manage todos through Mova's Android intents | Format and intent construction verified against Mova 7.0.1; device test deferred |
-| [Paseo](packages/paseo.json) | Open agents and workspaces and draft or send prompts through Paseo's `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch; device test deferred |
+| [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch and EVA's `content-provider-execution` branch; device test deferred |
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
