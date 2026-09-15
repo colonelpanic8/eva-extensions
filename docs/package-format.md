@@ -1,8 +1,11 @@
 # Declarative package format v1
 
 This is the author-facing contract for JSON plugins. It describes EVA's parser
-and Android host at commit `32e8e14` (2026-09-14), not a proposal for future
-bindings. Start with the complete example in [authoring](authoring.md).
+and Android host at commit `8a0d4e2` (2026-09-14), not a proposal for future
+bindings. Start with the complete example in [authoring](authoring.md). EVA also
+publishes a JSON Schema for this format at
+[`docs/schemas/package.schema.json`](https://github.com/colonelpanic8/eva/blob/main/docs/schemas/package.schema.json);
+the Kotlin codec remains the oracle where they disagree.
 
 ## Document and capability envelope
 
@@ -24,19 +27,28 @@ A capability has these fields:
 
 | Field | Required | Meaning |
 | --- | --- | --- |
-| `tool` | Yes | Exactly `name`, `description`, `inputSchema`; the MCP-compatible tool definition |
-| `title` | Yes | Nonempty action title, at most 120 characters |
+| `tool` | Yes | An MCP tool object: `name`, `description`, `inputSchema`, and optional `title`, `outputSchema`, `annotations`, `_meta` |
+| `title` | One of | Nonempty action title, at most 120 characters. Prefer `tool.title`; this capability-level field is a legacy alias, and one of the two is required |
 | `effects` | No | `read`, `write`, `external_handoff`, or `unknown`; defaults to unknown |
 | `execution` | Yes | Execution contract below |
 | `binding` | Yes | One binding below |
 | `validators` | No | Map from string argument names to supported named validators |
 | `receipts` | No | `success` and/or `handlerMissing`, each 1–1,000 characters |
+| `_meta` | No | Any object. EVA digests it into the contract but never interprets it; the only place for vendor data |
 
 Tool names match `[A-Za-z_][A-Za-z0-9_]{0,63}`; descriptions are 1–2,000
 characters. Tool names are local to the plugin; EVA assigns qualified capability
 IDs from the installed instance. Do not hard-code EVA's instance ID in a package.
 Titles, descriptions, and receipt text are attributed external data. They cannot
 override grants, status, or model policy.
+
+`tool.annotations` may carry MCP's `title`, `readOnlyHint`, `destructiveHint`,
+`idempotentHint`, and `openWorldHint`. They are hints for models and other MCP
+clients; `effects` remains EVA's authority, and a `readOnlyHint` or
+`destructiveHint` that contradicts the effective effect is rejected.
+`tool.outputSchema` is optional and describes the structured `data` a result
+carries (see [result projection](#result-projection)); its root is an object and
+it may nest objects and arrays, unlike the input schema.
 
 ## Input schema
 
@@ -55,6 +67,7 @@ underscore). `required` lists distinct declared names.
 | `string` | `description`, `enum`, `minLength`, `maxLength` |
 | `integer`, `number` | `description`, `enum`, `minimum`, `maximum` |
 | `boolean` | `description`, `enum` |
+| `array` | `description`, `items` (one scalar schema from the rows above), `minItems`, `maxItems` (0–64) |
 
 Descriptions are 1–2,000 characters. Enums contain 1–64 distinct values of the
 declared type satisfying its bounds. String length limits are integers 0–65,536
@@ -62,7 +75,7 @@ and count Unicode code points. Numeric limits are inclusive and finite; integer
 values/bounds must be within ±9,007,199,254,740,991. Minimum must not exceed maximum.
 Use explicit bounds suitable for the destination, especially on strings.
 
-Inputs cannot be nested objects, arrays, null, or type unions. No `default`,
+Inputs cannot be nested objects, arrays of objects, null, or type unions. No `default`,
 `pattern`, `format`, `$ref`, `oneOf`, `anyOf`, `allOf`, or arbitrary
 keywords. A subset of MCP tool JSON is compatible; this does not make EVA an MCP
 server or allow importing every MCP schema.
@@ -91,6 +104,9 @@ selection values. Two forms:
 property of the exact same type. Optional `default` is a non-null scalar meeting
 that property's schema; optional `required` is a boolean, default false.
 Literal slots have exactly `value` and `type`, with a matching non-null scalar.
+Inside an HTTP `requestBody` only, an argument slot may use `type: "array"` to
+place a whole scalar-list argument as a JSON array (with an optional array
+`default`); query, path, extras, opaque, and selection slots stay scalar.
 
 Tool-schema required inputs are validated **before** binding defaults. To use a
 default when the user omits input, leave it out of the schema's `required`.
@@ -106,24 +122,22 @@ both.
 
 ## Execution, effects, grants
 
-Required `execution` fields:
+The `execution` contract:
 
 ```json
 {
   "mode": "synchronous",
   "requiresForeground": false,
-  "maxWaitMillis": 30000,
-  "cancellation": "none",
-  "idempotency": "none",
-  "reconciliation": "none"
+  "maxWaitMillis": 30000
 }
 ```
 
-`mode` is `synchronous` or `handoff`. `maxWaitMillis` is optional, null or a
-positive integer. The other five fields are required; the last three accept only
-`none`. Intents require handoff and foreground true; HTTP/content require
-synchronous mode. Set foreground according to whether the operation needs EVA's
-visible activity.
+`mode` (`synchronous` or `handoff`) and `requiresForeground` are required.
+`maxWaitMillis` is optional, null or a positive integer. `cancellation`,
+`idempotency`, and `reconciliation` are optional, default to `none`, and accept
+only `none`; older packages that spell them out remain valid. Intents require
+handoff and foreground true; HTTP/content require synchronous mode. Set
+foreground according to whether the operation needs EVA's visible activity.
 
 Effective wait: user per-instance override, else capability `maxWaitMillis`,
 else EVA's mode default (20 seconds voice, 30 seconds typed; globally adjustable).
@@ -184,14 +198,15 @@ Required: `kind: "http"`, `origin`, `method`, `path`, `parameters`,
 | `method` | GET, HEAD, POST, PUT, PATCH, DELETE (uppercase) |
 | `path` | Starts with a single /; no query, fragment, backslash, percent escapes, whitespace/control characters, or . / .. segments |
 | `parameters` | Up to 64 `{in,name,value}` objects. `in` is path/query; `value` is a slot; name is an ASCII identifier |
-| `requestBody` | Object mapping `{"fields":{...}}`; leaves are slots and child objects are further fields mappings; up to 64 fields per object |
+| `requestBody` | Object mapping `{"fields":{...}}`; leaves are slots (scalar or array argument slots) and child objects are further fields mappings; up to 64 fields per object |
 | `credential` | Named basic-auth reference matching `[a-z][a-z0-9_-]{0,63}`; no secret in the document |
 | `maxResponseBytes` | Integer 1–1,048,576; oversized responses are rejected, not partially parsed |
 | `result` | Result mapping below |
 
 Path placeholders such as `/notes/{id}` must exactly match path parameter names.
 Values are encoded; empty, "." and ".." path values are refused. There are no
-header slots, arbitrary body arrays, raw body templates, or GET/HEAD bodies.
+header slots, raw body templates, or GET/HEAD bodies; the only arrays a body can
+carry are whole array-typed tool arguments.
 Body field names are ASCII identifiers. URL and encoded body are each bounded to
 16 KiB; incoming tool arguments are also bounded to 16 KiB.
 
@@ -241,6 +256,16 @@ Even reads should use endpoints with a JSON body. A successful HTTP status alone
 does not establish write completion. Projected text is untrusted and attributed.
 Byte truncation of pointer text preserves UTF-8 and appends an EVA-owned note;
 the note/receipt envelope may exceed the projection's byte budget.
+
+Results also carry structured `data` beside the text, which EVA journals with the
+receipt and hands to the model as quoted external data. A `pointer` result whose
+selected value is a JSON object becomes the data as-is. An `items` result becomes
+`{"items": [...], "truncated": bool, "sourceTruncated": bool, "total": n?}` where
+each item is an object keyed by slot name with the typed values (string, number,
+boolean, string array, or null); exactly the items that appear as whole lines in
+the text appear in the data. Content queries attach `{"rows": [...], "truncated":
+bool}`. Data larger than 16 KiB is omitted whole rather than cut. Declare
+`tool.outputSchema` when you want that shape documented for models and clients.
 
 ### Item mapping and local filter
 

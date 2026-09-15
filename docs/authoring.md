@@ -53,10 +53,7 @@ This is a complete package. It asks an installed map handler to search a place:
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "binding": {
         "kind": "android.intent",
@@ -71,8 +68,9 @@ This is a complete package. It asks an installed map handler to search a place:
 }
 ```
 
-The `tool` object is the MCP-compatible description of the action. The
-`binding` fixes what it can do. Arguments fill typed, encoded slots; they cannot
+The `tool` object is the MCP tool description of the action; it may also carry
+`title`, `outputSchema`, and `annotations` (see the [reference](package-format.md)).
+The `binding` fixes what it can do. Arguments fill typed, encoded slots; they cannot
 choose an arbitrary action, component, origin, or shell command.
 
 For a fixed activity and integer extras, copy [Caffeine](../packages/caffeine.json).
