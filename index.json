@@ -1,0 +1,44 @@
+{
+  "formatVersion": 1,
+  "packages": [
+    {
+      "id": "android.caffeine",
+      "version": "0.1.0",
+      "title": "Caffeine",
+      "url": "packages/caffeine.json",
+      "sha256": "5921a873e8fc824b376af24dd904316007d57d02f20b45d56fe9c34988d473d6",
+      "androidPackages": [
+        "moe.zhs.caffeine"
+      ]
+    },
+    {
+      "id": "android.messages",
+      "version": "0.1.0",
+      "title": "Messages",
+      "url": "packages/messages.json",
+      "sha256": "b5b21d44b5cd610127fb7aaf763b0bc112b898409ae9aae43ab4423e961f427c",
+      "androidPackages": []
+    },
+    {
+      "id": "android.mova",
+      "version": "0.2.1",
+      "title": "Mova",
+      "url": "packages/mova.json",
+      "sha256": "ad8313c8ac255da84cb897b0b6644cc580e43d9d24c14bb457597f3830000e42",
+      "androidPackages": [
+        "com.colonelpanic.mova"
+      ]
+    },
+    {
+      "id": "android.paseo",
+      "version": "0.1.0",
+      "title": "Paseo",
+      "url": "packages/paseo.json",
+      "sha256": "a8e5ee2cd5eeedece06a158fc11c590099bb74046bc310c6dec4673bd7d2a2a4",
+      "androidPackages": [
+        "sh.paseo",
+        "sh.paseo.assembly"
+      ]
+    }
+  ]
+}

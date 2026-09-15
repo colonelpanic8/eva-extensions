@@ -11,6 +11,10 @@ a todo mutation, refresh, search, or navigation completed. Mova must be logged i
 for native todo operations. Provider reads return `COMPLETED` with bounded rows;
 that receipt says nothing about a later intent action.
 
+Each intent names Mova's intended exported activity as well as its package. Mova's
+main activity also advertises broad `mova://` handling, so leaving the component
+implicit can show an Android chooser between two activities in the same app.
+
 ## Consent and capture templates
 
 `create_todo`, `complete_todo`, `update_todo`, and `reschedule_todo` pass the
@@ -37,7 +41,7 @@ returns `key`, `name`, `is_default`, `title_prompt`, `prompts_json`, and
 requires the dangerous Android permission
 `com.colonelpanic.mova.permission.READ_TODOS`.
 
-Package version 0.2.0 adds these reads beside the existing intent actions:
+Package version 0.2.1 adds these reads beside the existing intent actions:
 
 | Capability | Provider request | Next action |
 | --- | --- | --- |
@@ -73,7 +77,7 @@ grant access. Open Mova and configure the active server first. Missing access
 is a setup rejection; a provider failure or null cursor fails the read without
 returning partial rows. A timeout after submission remains `UNKNOWN`.
 
-The 0.2.0 contract requires re-enablement and renewed action grants. Its URI,
+The 0.2.1 contract requires re-enablement and renewed action grants. Its URI,
 column and scalar mappings were checked against Mova 7.0.1's `TodoProvider`,
 `ProviderRows`, and `TemplateProviderRows`, and decoded by EVA's JVM tests.
 Device verification remains pending.
