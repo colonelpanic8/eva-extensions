@@ -1,13 +1,15 @@
 # Mova package notes
 
 The [Mova package](../packages/mova.json) targets Mova 7.0.1's Android
-`mova://` interface. Mova uses the active server and credentials already
-configured in the app rather than exposing them through this package.
+`mova://` interface and read-only content provider. Mova uses the active server
+and credentials already configured in the app rather than exposing them through
+this package.
 
 EVA treats every successful Android activity launch as `HANDED_OFF`; it does not
 consume Mova's activity result extras. The package therefore does not claim that
 a todo mutation, refresh, search, or navigation completed. Mova must be logged in
-for native todo operations.
+for native todo operations. Provider reads return `COMPLETED` with bounded rows;
+that receipt says nothing about a later intent action.
 
 ## Consent and capture templates
 
@@ -26,7 +28,7 @@ map only statically named arguments to statically named query parameters. A
 custom package can add known prompt names explicitly, but the shared package
 cannot discover a user's templates and change its tool schema at runtime.
 
-## ContentProvider limitation
+## Discover templates and todos
 
 Mova exposes a read-only provider at
 `content://com.colonelpanic.mova.provider`. Its fixed `/templates` endpoint
@@ -35,27 +37,43 @@ returns `key`, `name`, `is_default`, `title_prompt`, `prompts_json`, and
 requires the dangerous Android permission
 `com.colonelpanic.mova.permission.READ_TODOS`.
 
-The current EVA package codec can parse a fixed `android.content` URI,
-projection, and SQL-style selection. The Android runtime cannot execute it:
-`AndroidDeclarativeHost` reports every content binding unavailable and its query
-method does not call `ContentResolver`. Packages also cannot add manifest
-permissions, request dangerous permissions, or add provider-visibility entries.
-Consequently this package deliberately has no template-list, todo-search, or
-agenda-read capability.
+Package version 0.2.0 adds these reads beside the existing intent actions:
 
-Provider-backed template listing needs these EVA core changes:
+| Capability | Provider request | Next action |
+| --- | --- | --- |
+| `list_templates` | `/templates` | Pass `key` as `template` to capture or create |
+| `find_todos` | `/todos?q=&limit=`; default limit 25, maximum 50 | Pick a todo and retain its location |
+| `read_todo` | `/todos/{id}` with an encoded single-segment id | Inspect a discovered todo |
+| `read_agenda` | `/agenda?date=&span=&include_overdue=&include_completed=` | Read day/week agenda rows |
 
-1. Declare `com.colonelpanic.mova.permission.READ_TODOS` and a
-   `<queries><provider android:authorities="com.colonelpanic.mova.provider"/></queries>`
-   entry in EVA's Android manifest, then add an explicit runtime-permission flow
-   for that dangerous permission.
-2. Implement bounded, background-thread `ContentResolver.query` execution in
-   `AndroidDeclarativeHost`, preserving the package projection, selection,
-   maximum-row, and maximum-byte limits and returning attributed rows.
+Todo rows retain `id`, `file`, `pos`, and `title`. Some Org headings have no id;
+for those, pass the returned `file`, `pos`, and `title` to `open_todo` or a
+separately requested mutation. `read_todo` requires an id. `search_todos` and
+`open_agenda` remain UI handoffs; they do not return provider rows. The intent
+for opening a discovered id is `mova://open?id=`, not the provider URI.
 
-Those changes are sufficient for the fixed `/templates` endpoint. To expose
-Mova's useful `/todos?q=&limit=`, `/todos/<id>`, and
-`/agenda?date=&span=&include_overdue=&include_completed=` forms, EVA must also
-extend the content binding with typed URI path/query slots. Its current content
-URI is fixed and forbids a query string, while Mova's provider does not interpret
-the binding's SQL-style `selection` as those endpoint parameters.
+Queries use typed URI slots, not SQL selection: Mova ignores the selection
+parameter. Agenda `span` is the string `day` or `week`. EVA percent-encodes
+values, so pass raw identifiers and search text. Reads have a 10-second deadline,
+whole-row limits and a 14,000-byte row budget. EVA's `truncated` flag describes
+its own row/byte cap; it does not incorporate Mova's cursor `total` extra or
+prove that a server-limited search was exhaustive.
+
+## Setup and verification
+
+Use an EVA build containing content-provider execution (commit `000f95f` or
+later). Earlier builds parse only fixed content URIs and cannot execute reads.
+EVA declares Mova's provider authority for package visibility and its read
+permission in the manifest. No AIDL service is needed.
+
+After importing/updating and enabling the package, expand it in **Extensions**
+and choose **Allow provider reads**. Android grants this dangerous permission on
+each device; restoring EVA's configuration preserves the requirement but cannot
+grant access. Open Mova and configure the active server first. Missing access
+is a setup rejection; a provider failure or null cursor fails the read without
+returning partial rows. A timeout after submission remains `UNKNOWN`.
+
+The 0.2.0 contract requires re-enablement and renewed action grants. Its URI,
+column and scalar mappings were checked against Mova 7.0.1's `TodoProvider`,
+`ProviderRows`, and `TemplateProviderRows`, and decoded by EVA's JVM tests.
+Device verification remains pending.

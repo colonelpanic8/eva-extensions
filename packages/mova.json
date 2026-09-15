@@ -1,9 +1,268 @@
 {
   "formatVersion": 1,
   "id": "android.mova",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Mova",
   "capabilities": [
+    {
+      "tool": {
+        "name": "list_templates",
+        "title": "List capture templates",
+        "description": "Read capture templates from Mova's active server. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Use key as the template argument to create_todo or capture_todo. prompts_json describes template prompts; it does not add arguments to this package. Results are bounded and may omit templates.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        }
+      },
+      "effects": "read",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 10000
+      },
+      "binding": {
+        "kind": "android.content",
+        "authority": "com.colonelpanic.mova.provider",
+        "uri": {
+          "base": "content://com.colonelpanic.mova.provider/templates"
+        },
+        "projection": {
+          "key": "string",
+          "name": "string",
+          "is_default": "boolean",
+          "title_prompt": "string",
+          "prompts_json": "string",
+          "capture_uri": "string"
+        },
+        "maxRows": 50,
+        "maxBytes": 14000
+      }
+    },
+    {
+      "tool": {
+        "name": "find_todos",
+        "title": "Find todos",
+        "description": "Search todos on Mova's active server and return bounded rows. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Use a returned id in read_todo, open_todo, or a separately requested mutation; if id is null, use file, pos, and title with an intent action. q is passed to Mova's search. Only the requested page is searched; absence does not prove no todo exists.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "q": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Mova server search text."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Maximum server results. Defaults to 25."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        }
+      },
+      "effects": "read",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 10000
+      },
+      "binding": {
+        "kind": "android.content",
+        "authority": "com.colonelpanic.mova.provider",
+        "uri": {
+          "base": "content://com.colonelpanic.mova.provider/todos",
+          "query": {
+            "q": {
+              "argument": "q",
+              "type": "string"
+            },
+            "limit": {
+              "argument": "limit",
+              "type": "integer",
+              "default": 25
+            }
+          }
+        },
+        "projection": {
+          "id": "string",
+          "file": "string",
+          "pos": "integer",
+          "title": "string",
+          "state": "string",
+          "priority": "string",
+          "scheduled": "string",
+          "deadline": "string",
+          "tags": "string",
+          "category": "string"
+        },
+        "maxRows": 50,
+        "maxBytes": 14000
+      }
+    },
+    {
+      "tool": {
+        "name": "read_todo",
+        "title": "Read todo by id",
+        "description": "Read a todo with a known nonempty Org id from Mova's active server. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Use find_todos to discover ids. IDs must be a single path segment; todos without an id can be opened using file, pos, and title through open_todo.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Org id returned by find_todos or read_agenda; no slashes or dot segments."
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "additionalProperties": false
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        }
+      },
+      "effects": "read",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 10000
+      },
+      "binding": {
+        "kind": "android.content",
+        "authority": "com.colonelpanic.mova.provider",
+        "uri": {
+          "base": "content://com.colonelpanic.mova.provider/todos/{id}",
+          "path": {
+            "id": {
+              "argument": "id",
+              "type": "string"
+            }
+          }
+        },
+        "projection": {
+          "id": "string",
+          "file": "string",
+          "pos": "integer",
+          "title": "string",
+          "state": "string",
+          "priority": "string",
+          "scheduled": "string",
+          "deadline": "string",
+          "tags": "string",
+          "category": "string",
+          "scheduled_repeater": "string",
+          "deadline_repeater": "string",
+          "olpath": "string",
+          "completed_at": "string"
+        },
+        "maxRows": 1,
+        "maxBytes": 14000
+      }
+    },
+    {
+      "tool": {
+        "name": "read_agenda",
+        "title": "Read agenda",
+        "description": "Read a bounded day or week agenda from Mova's active server. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Defaults are chosen by Mova when omitted. Use returned id, or file/pos/title when id is null, in a later intent action. This reads agenda rows; open_agenda opens Mova's UI.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 10,
+              "description": "Agenda date as YYYY-MM-DD. Omit for Mova's default date."
+            },
+            "span": {
+              "type": "string",
+              "enum": [
+                "day",
+                "week"
+              ],
+              "description": "Agenda span. Mova defaults to day."
+            },
+            "include_overdue": {
+              "type": "boolean",
+              "description": "Include overdue todos."
+            },
+            "include_completed": {
+              "type": "boolean",
+              "description": "Include completed todos."
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        }
+      },
+      "effects": "read",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 10000
+      },
+      "binding": {
+        "kind": "android.content",
+        "authority": "com.colonelpanic.mova.provider",
+        "uri": {
+          "base": "content://com.colonelpanic.mova.provider/agenda",
+          "query": {
+            "date": {
+              "argument": "date",
+              "type": "string"
+            },
+            "span": {
+              "argument": "span",
+              "type": "string"
+            },
+            "include_overdue": {
+              "argument": "include_overdue",
+              "type": "boolean"
+            },
+            "include_completed": {
+              "argument": "include_completed",
+              "type": "boolean"
+            }
+          }
+        },
+        "projection": {
+          "id": "string",
+          "file": "string",
+          "pos": "integer",
+          "title": "string",
+          "state": "string",
+          "priority": "string",
+          "scheduled": "string",
+          "deadline": "string",
+          "tags": "string",
+          "category": "string",
+          "agenda_line": "string",
+          "date_relevance": "string",
+          "completed_at": "string"
+        },
+        "maxRows": 50,
+        "maxBytes": 14000
+      }
+    },
     {
       "tool": {
         "name": "create_todo",

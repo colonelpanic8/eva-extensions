@@ -11,7 +11,7 @@ to either app.
 | --- | --- | --- |
 | `android.intent` | Documented deep links or exported activities with scalar extras | Implemented; Caffeine and Messages device-tested |
 | `http` | An existing HTTPS JSON API | Implemented and JVM-tested; examples not device-verified |
-| `android.content` | Read-only content-provider queries | Format/interpreter tested; Android execution unavailable |
+| `android.content` | Read-only content-provider queries with typed URI slots | Implemented and Robolectric-tested; Mova/Paseo device verification pending |
 | `packageByName` on an intent | Choose a target using a visible app name | Parsed, but Android execution unavailable |
 
 An intent is an **activity launch**, not a broadcast or service call. Check the
@@ -78,6 +78,17 @@ For a fixed activity and integer extras, copy [Caffeine](../packages/caffeine.js
 For opaque URI data and a named validator, see [Messages](../packages/messages.json).
 For HTTP nested body mappings and item projections, see
 [HTTP notes](examples/http-notes.json).
+For reads that discover IDs for intent actions in the same package, see
+[Mova](mova.md) and [Paseo](paseo.md). Content queries return only declared
+columns, with row/byte limits and no partial rows. Use typed URI query/path slots
+for providers that take URL parameters; SQL selection is a different interface.
+
+Content visibility and Android permissions must already be supported by EVA's
+installed manifest. EVA explicitly queries the Mova and Paseo provider
+authorities and offers Mova's runtime read-permission request from extension
+settings. JSON cannot add authorities to Android's visibility declarations or
+request arbitrary permissions. See the [content reference](package-format.md#content-binding)
+before targeting another provider.
 
 ## Describe effects and outcomes honestly
 
@@ -102,7 +113,10 @@ re-enablement, even if only descriptive text changed.
 3. Inspect the preview. A parse/validation error means nothing was installed.
 4. Install, enable the plugin, and expand it to grant the actions you will test.
 5. For HTTP, configure the named credential and approved server origin under
-   **Extensions → Settings**. Keep secrets out of the file.
+   **Extensions → Settings**. Keep secrets out of the file. For content reads,
+   expand the installed package, check provider availability, and use **Allow
+   provider reads** when Android permission is required. Authorize each device
+   separately after restoring configuration.
 6. Reconnect in typed mode. Ask for exactly one action and inspect its receipt.
    Test missing inputs, special characters, missing target apps, and failure cases.
    Test writes only against data you intend to change.
@@ -132,7 +146,9 @@ not fetch missing pages or provide strict write semantics to an older server.
 | Plugin visible but model cannot use it | Enable/grant, reconnect, and check catalog overflow/availability |
 | App not detected | Matching depends on Android visibility; try manual import and check actual intent handling |
 | Activity unavailable | Install/enable the app, confirm exported activity and exact package/class for that version |
-| Content or app-name action unavailable | These are parsed but not yet implemented by the Android host |
+| Content action unavailable | Use an EVA build with content execution; install/enable the provider app, check authority visibility, and grant its read permission in extension settings |
+| Content read fails | Verify exact projection columns/types and provider-supported query/selection parameters; null cursors and invalid columns fail without partial rows |
+| App-name action unavailable | `packageByName` is parsed but not yet implemented by the Android host |
 | HTTP credential missing | Match the reference name and approved origin; no paths or credentials in the origin |
 | HTTP read is unknown | Check JSON shape/types, response limit, deadline, and HTTP 202 |
 | HTTP write is unknown | Require real terminal evidence; a 2xx response alone is insufficient |

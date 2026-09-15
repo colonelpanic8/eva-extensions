@@ -11,7 +11,7 @@ In EVA, open **Extensions → Browse**, enter this Git repository URL, and selec
 **Refresh plugin repository**:
 
 ```text
-https://github.com/colonelpanic8/eva-plugins.git
+https://github.com/colonelpanic8/eva-extensions.git
 ```
 
 Preview and install a package, then enable it in **Installed**. Expand its row to
@@ -33,7 +33,7 @@ app matching, versioning, and publishing your own repository.
 | --- | --- | --- |
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
-| [Mova](packages/mova.json) | Create and manage todos through Mova's Android intents | Format and intent construction verified against Mova 7.0.1; device test deferred |
+| [Mova](packages/mova.json) | Discover templates, todos and agenda rows; create and manage todos through Mova's Android intents | Mova 7.0.1 provider/intent contracts checked and EVA codec-tested; device verification pending |
 | [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch and EVA's `content-provider-execution` branch; device test deferred |
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
@@ -41,8 +41,9 @@ local filtering and write evidence against a hypothetical API; it is outside the
 installable `packages/` directory.
 
 The Mova package targets the Android app rather than the org-agenda HTTP API.
-See its [supported action and ContentProvider notes](docs/mova.md), including why
-provider-backed template and todo reads are not exposed by the current package.
+See its [read, action and permission setup notes](docs/mova.md). Reads require an
+EVA build with content execution and Mova's Android read grant. Updating the
+package to 0.2.0 requires re-enablement and renewed action grants.
 
 The Paseo package drives the coding-agent app's `paseo://` links. See its
 [draft-versus-send and host resolution notes](docs/paseo.md).
@@ -59,5 +60,5 @@ version when content changes and commit that file. Validate through EVA's previe
 and test the actual action before claiming device support. Never commit credentials.
 
 Format documentation was checked against EVA
-`1a211c0` (2026-09-14).
+`000f95f`, which implements content-provider execution and typed content URI slots.
 Availability notes distinguish parser support from Android execution support.

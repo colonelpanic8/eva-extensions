@@ -1,8 +1,8 @@
 # Declarative package format v1
 
 This is the author-facing contract for JSON plugins. It describes EVA's parser
-and Android host at commit `1a211c0` (2026-09-14), not a proposal for future
-bindings. Start with the complete example in [authoring](authoring.md). EVA also
+and Android host including content execution at commit `000f95f`. Start with the
+complete example in [authoring](authoring.md). EVA also
 publishes a JSON Schema for this format at
 [`docs/schemas/package.schema.json`](https://github.com/colonelpanic8/eva/blob/main/docs/schemas/package.schema.json);
 the Kotlin codec remains the oracle where they disagree.
@@ -89,7 +89,7 @@ names are rejected. Defaults should also satisfy the intended validator.
 ## Typed slots and conditional selection
 
 Slots are used for query values, extras, HTTP parameters/body leaves, and content
-selection values. Two forms:
+path/selection values. Two forms:
 
 ```json
 {"argument":"title","type":"string","default":"Untitled","required":true}
@@ -147,8 +147,9 @@ EVA limits execution to four global calls and one per extension instance, refusi
 busy calls instead of queuing. There are no accepted-job/polling/callback contracts
 in v1, no automatic retry of uncertain work, and interruption is not undo.
 
-Effect floors: intents are at least external handoff; POST/PUT/PATCH/DELETE are
-writes. Omitted/unknown effects remain unknown. GET is not automatically read:
+Effect floors: content queries are at least read; intents are at least external
+handoff; POST/PUT/PATCH/DELETE are writes. Omitted/unknown effects remain unknown.
+GET is not automatically read:
 declare read only when accurate. All non-read effects need individual grants.
 The user enables a plugin to grant claimed reads. No file field grants authority
 automatically. Imported mutations after a tool result need a new user request.
@@ -304,20 +305,80 @@ Without total/completeness metadata, no claim is made about data not returned.
 There is no sorting, ranking, joins, calculations, regex, scripting, pagination,
 network follow-up, conditional line formatting, or recursive array search.
 
-## Content binding: accepted format, unavailable on Android
+## Content binding
 
 Required: `kind: "android.content"`, `authority`, `uri`, `projection`,
 `maxRows`, `maxBytes`. Optional: `selection`.
 
-Authority is a fixed dotted ID, up to 200 characters; URI is fixed `content://`
-with that exact authority, no query/fragment, up to 2,000 characters.
+Authority is a fixed dotted ID, up to 200 characters. URI accepts a legacy fixed
+`content://` string or `{base, query?, path?}`. Base uses that exact authority,
+with no query/fragment, user info or port, up to 2,000 characters. Object bases
+also reject percent escapes, whitespace, backslashes and dot segments. Arguments
+can never choose an authority, column or SQL fragment.
+
+```json
+{
+  "base": "content://com.colonelpanic.mova.provider/todos/{id}",
+  "path": {"id": {"argument": "id", "type": "string"}}
+}
+```
+
+Query maps at most 64 fixed names (1–200 characters, no controls) to scalar
+slots. Names and values are percent-encoded; an absent optional argument is
+omitted unless its slot has a default. Path maps at most 64 identifier names
+to scalar slots matching every `{name}` placeholder exactly. Each path slot must
+resolve; empty, `.`/`..`, slash and backslash values are rejected. Pass raw
+values, never pre-encoded strings. The expanded URI is bounded to 16 KiB.
+
 Projection maps 1–32 identifier column names to scalar types.
 Selection is up to 16 `{column,operator,value}` predicates joined with AND;
 columns must be projected, slots must match the column type, and operators are
 =, !=, <, <=, >, >=, LIKE (LIKE only for strings). Values become bound selection
 arguments, not SQL fragments. `maxRows` is 1–100; `maxBytes` is 1–16,384.
 
-The interpreter projects all declared columns to bounded JSON text. There is no
-free-form SQL, sorting, insert/update/delete, or provider call. The Android host
-currently returns unavailable rather than issuing the query. Do not advertise
-content capabilities as working until an EVA release implements the host.
+EVA issues `ContentResolver.query` on bounded background workers with a
+`CancellationSignal`, exactly the declared projection, bound selection arguments,
+and no sorting. Mova and Paseo use URI parameters for filtering; do not add SQL
+selection to those packages. There is no free-form SQL or insert/update/delete.
+
+Results contain attributed JSON text and structured `data: {"rows": [...],
+"truncated": bool}` with the same whole rows. Strings require string cursor
+cells, integers integer cells in the exact-integer range, numbers finite numeric
+cells, and booleans integer 0/1; null remains null. Blobs and implicit coercion
+fail the read. `maxBytes` bounds the UTF-8 JSON row array including escaping and
+separators; EVA reserves room for the structured object's 16 KiB limit. Empty
+array and EVA-owned annotations are envelope overhead. No ID is cut in half.
+
+The host reads at most `maxRows` rows plus a lookahead and flags its row/byte
+truncation. It cannot infer rows omitted by a provider-side limit or cache.
+Describe those limits in tools. A completed read returns `COMPLETED`;
+missing/invisible providers or permissions return `NOT_EXECUTED` with setup
+guidance, and provider `SecurityException` returns `NOT_EXECUTED` with caller
+authorization guidance. Unknown columns, invalid cell types, null cursors and
+other query failures return `FAILED` without partial data. A deadline before
+submission returns `NOT_EXECUTED`; after submission it returns `UNKNOWN` and
+requests cancellation. Reads are never retried. The deadline includes provider
+acquisition and cursor traversal; late cursors are closed.
+
+### Visibility and permission setup
+
+EVA's manifest declares `com.colonelpanic.mova.provider` and `sh.paseo.assistant`
+in `<queries><provider android:authorities="..."/></queries>`. Per-authority
+entries let existing apps expose providers without an AIDL service or a new
+advertisement component. Provider metadata alone cannot make a package visible.
+No `QUERY_ALL_PACKAGES` is used. Other providers need an existing visibility
+route or an EVA manifest update; importing JSON cannot add one.
+
+EVA also declares Mova's dangerous
+`com.colonelpanic.mova.permission.READ_TODOS` permission. **Extensions → expand
+the package → Allow provider reads** launches Android's runtime request. Paseo
+uses no dangerous permission and enforces its own caller policy. All queries
+recheck Android access; enabling the package does not bypass either app's checks.
+Additional custom dangerous permissions require an EVA manifest/allowlist change;
+there is no model-supplied permission slot.
+
+Installed package bytes, enablement and action grants use EVA's portable
+configuration. Supported content permissions participate in `device.authorizations`
+in `eva.yaml`; restoring it reports missing providers/permissions and requires
+device-local authorization. Configuration cannot grant Android permission.
+See [Mova setup](mova.md#setup-and-verification) and [Paseo's catalog](paseo.md#where-the-ids-come-from).
