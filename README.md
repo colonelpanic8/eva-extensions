@@ -34,6 +34,7 @@ app matching, versioning, and publishing your own repository.
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
 | [Mova](packages/mova.json) | Create and manage todos through Mova's Android intents | Format and intent construction verified against Mova 7.0.1; device test deferred |
+| [Paseo](packages/paseo.json) | Open agents and workspaces and draft or send prompts through Paseo's `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch; device test deferred |
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
@@ -42,6 +43,9 @@ installable `packages/` directory.
 The Mova package targets the Android app rather than the org-agenda HTTP API.
 See its [supported action and ContentProvider notes](docs/mova.md), including why
 provider-backed template and todo reads are not exposed by the current package.
+
+The Paseo package drives the coding-agent app's `paseo://` links. See its
+[draft-versus-send and host resolution notes](docs/paseo.md).
 
 These documents describe the declarative package protocol. EVA's separate
 installed-service AIDL protocol (in EVA’s `docs/extension-protocol.md`)
