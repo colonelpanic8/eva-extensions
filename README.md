@@ -55,5 +55,5 @@ version when content changes and commit that file. Validate through EVA's previe
 and test the actual action before claiming device support. Never commit credentials.
 
 Format documentation was checked against EVA
-`8a0d4e2` (2026-09-14).
+`1a211c0` (2026-09-14).
 Availability notes distinguish parser support from Android execution support.

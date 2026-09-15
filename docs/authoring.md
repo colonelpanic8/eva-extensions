@@ -39,6 +39,7 @@ This is a complete package. It asks an installed map handler to search a place:
     {
       "tool": {
         "name": "search",
+        "title": "Search maps",
         "description": "Open a map search for a place. Reports handoff, not arrival or navigation completion.",
         "inputSchema": {
           "type": "object",
@@ -49,7 +50,6 @@ This is a complete package. It asks an installed map handler to search a place:
           "additionalProperties": false
         }
       },
-      "title": "Search maps",
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
@@ -68,8 +68,9 @@ This is a complete package. It asks an installed map handler to search a place:
 }
 ```
 
-The `tool` object is the MCP tool description of the action; it may also carry
-`title`, `outputSchema`, and `annotations` (see the [reference](package-format.md)).
+The `tool` object is the MCP tool description of the action, including its
+`title`; it may also carry `outputSchema` and `annotations` (see the
+[reference](package-format.md)).
 The `binding` fixes what it can do. Arguments fill typed, encoded slots; they cannot
 choose an arbitrary action, component, origin, or shell command.
 

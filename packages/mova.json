@@ -7,6 +7,7 @@
     {
       "tool": {
         "name": "create_todo",
+        "title": "Create todo",
         "description": "Ask Mova 7.0.1 or later on Android to create a todo through a capture template. Title is required. Template selects a known Mova capture-template key; scheduled, deadline, priority, tags, and state are universal capture values. Body is used only when the chosen template declares a body prompt. This package forces Mova's native confirmation sheet. A successful EVA receipt proves handoff only, not creation.",
         "inputSchema": {
           "type": "object",
@@ -64,14 +65,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Create todo",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Todo creation request handed to Mova. Mova will ask for confirmation; creation is not verified by EVA.",
@@ -128,6 +125,7 @@
     {
       "tool": {
         "name": "capture_todo",
+        "title": "Open typing capture",
         "description": "Open Mova's Android typing capture dialog, optionally prefilled and with a known capture-template key selected. The user reviews or edits the text and submits in Mova. EVA observes only the handoff and does not receive the dialog result.",
         "inputSchema": {
           "type": "object",
@@ -155,14 +153,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Open typing capture",
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Mova's typing capture dialog opened. Submission or cancellation is not observed by EVA.",
@@ -194,6 +188,7 @@
     {
       "tool": {
         "name": "capture_todo_voice",
+        "title": "Capture todo by voice",
         "description": "Start Mova's Android voice-capture flow. Mova opens the system speech recognizer and automatically submits its first recognized phrase through the selected capture template. EVA observes only the activity handoff and does not receive success, failure, or cancellation data.",
         "inputSchema": {
           "type": "object",
@@ -215,14 +210,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Capture todo by voice",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Mova's voice-capture flow opened. Recognition and todo creation are not verified by EVA.",
@@ -250,6 +241,7 @@
     {
       "tool": {
         "name": "complete_todo",
+        "title": "Complete todo",
         "description": "Ask Mova 7.0.1 or later on Android to set a todo's state, DONE by default. Identify it by id; otherwise use file and pos, with title as an optional disambiguator; exact title alone is also accepted through the server's fallback lookup. Date backdates completion as YYYY-MM-DD. strict=true forbids server fallback lookups. This package forces Mova's native confirmation sheet. A successful EVA receipt proves handoff only.",
         "inputSchema": {
           "type": "object",
@@ -299,14 +291,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Complete todo",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Todo completion request handed to Mova. Mova will ask for confirmation; completion is not verified by EVA.",
@@ -358,6 +346,7 @@
     {
       "tool": {
         "name": "update_todo",
+        "title": "Update todo",
         "description": "Ask Mova 7.0.1 or later on Android to update a todo. Identify it by id; otherwise use file and pos, with title as an optional disambiguator; exact title alone is also accepted through the server's fallback lookup. Supply at least one of new_title, scheduled, deadline, priority, tags, state, or body. An empty scheduled, deadline, priority, tags, state, or body value clears that field. strict=true forbids server fallback lookups. This package forces Mova's native confirmation sheet. A successful EVA receipt proves handoff only.",
         "inputSchema": {
           "type": "object",
@@ -431,14 +420,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Update todo",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Todo update request handed to Mova. Mova will ask for confirmation; the update is not verified by EVA.",
@@ -510,6 +495,7 @@
     {
       "tool": {
         "name": "reschedule_todo",
+        "title": "Reschedule todo",
         "description": "Ask Mova 7.0.1 or later on Android to set or clear a todo's scheduled and deadline timestamps through the reschedule alias. Identify it by id; otherwise use file and pos, with title as an optional disambiguator; exact title alone is also accepted through the server's fallback lookup. Supply scheduled, deadline, or both. An empty value clears that timestamp. strict=true forbids server fallback lookups. This package forces Mova's native confirmation sheet. A successful EVA receipt proves handoff only.",
         "inputSchema": {
           "type": "object",
@@ -557,14 +543,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Reschedule todo",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Todo reschedule request handed to Mova. Mova will ask for confirmation; the update is not verified by EVA.",
@@ -616,6 +598,7 @@
     {
       "tool": {
         "name": "delete_todo",
+        "title": "Delete todo",
         "description": "Ask Mova 7.0.1 or later on Android to permanently delete a todo and its sub-headings. Identify it by id or by file and pos; title may be included as a disambiguator. Mova always shows a confirmation sheet for deletion, regardless of its headless-write setting. A successful EVA receipt proves handoff only, not deletion.",
         "inputSchema": {
           "type": "object",
@@ -649,14 +632,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Delete todo",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Todo deletion request handed to Mova. Mova will always ask for confirmation; deletion is not verified by EVA.",
@@ -692,6 +671,7 @@
     {
       "tool": {
         "name": "open_todo",
+        "title": "Open todo",
         "description": "Open a todo's edit screen in the Android Mova app. Identify it by id or by file and pos; title may be included as a disambiguator. Mova shows an alert when no matching todo is found. EVA observes only the app handoff.",
         "inputSchema": {
           "type": "object",
@@ -725,14 +705,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Open todo",
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Todo reference handed to Mova. Whether the edit screen found and opened the todo is not verified by EVA.",
@@ -768,6 +744,7 @@
     {
       "tool": {
         "name": "search_todos",
+        "title": "Open todo search",
         "description": "Open the Android Mova app's search tab, optionally prefilled with a query. This navigates the app and does not return todo data to EVA.",
         "inputSchema": {
           "type": "object",
@@ -783,14 +760,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Open todo search",
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Search view handed to Mova. Search results are not returned to EVA.",
@@ -814,6 +787,7 @@
     {
       "tool": {
         "name": "open_agenda",
+        "title": "Open agenda",
         "description": "Open the Android Mova app's agenda on an optional date and day or week span. This navigates the app and does not return agenda data to EVA.",
         "inputSchema": {
           "type": "object",
@@ -837,14 +811,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Open agenda",
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Agenda view handed to Mova. Agenda entries are not returned to EVA.",
@@ -872,6 +842,7 @@
     {
       "tool": {
         "name": "refresh",
+        "title": "Refresh Mova data",
         "description": "Ask Mova 7.0.1 or later on Android to drop its query caches and redraw agenda widgets. git=true also asks the active org-agenda server to pull its Org repositories first. Mova never shows its write-confirmation sheet for refresh. EVA observes only the activity handoff and cannot verify cache refresh or git pull completion.",
         "inputSchema": {
           "type": "object",
@@ -885,14 +856,10 @@
           "additionalProperties": false
         }
       },
-      "title": "Refresh Mova data",
       "effects": "write",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "requiresForeground": true
       },
       "receipts": {
         "success": "Refresh request handed to Mova. Cache invalidation and any requested git pull are not verified by EVA.",

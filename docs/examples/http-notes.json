@@ -8,6 +8,7 @@
     {
       "tool": {
         "name": "search",
+        "title": "Search returned notes",
         "description": "Search only the notes returned by the configured example API; no additional pages are fetched.",
         "inputSchema": {
           "type": "object",
@@ -24,15 +25,11 @@
           "additionalProperties": false
         }
       },
-      "title": "Search returned notes",
       "effects": "read",
       "execution": {
         "mode": "synchronous",
         "requiresForeground": false,
-        "maxWaitMillis": 30000,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "maxWaitMillis": 30000
       },
       "binding": {
         "kind": "http",
@@ -82,6 +79,7 @@
     {
       "tool": {
         "name": "create",
+        "title": "Create note",
         "description": "Create a note through the configured hypothetical API. Completion requires a terminal status of created in its response.",
         "inputSchema": {
           "type": "object",
@@ -98,15 +96,11 @@
           "additionalProperties": false
         }
       },
-      "title": "Create note",
       "effects": "write",
       "execution": {
         "mode": "synchronous",
         "requiresForeground": false,
-        "maxWaitMillis": 30000,
-        "cancellation": "none",
-        "idempotency": "none",
-        "reconciliation": "none"
+        "maxWaitMillis": 30000
       },
       "binding": {
         "kind": "http",

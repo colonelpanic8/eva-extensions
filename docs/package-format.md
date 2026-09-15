@@ -1,7 +1,7 @@
 # Declarative package format v1
 
 This is the author-facing contract for JSON plugins. It describes EVA's parser
-and Android host at commit `8a0d4e2` (2026-09-14), not a proposal for future
+and Android host at commit `1a211c0` (2026-09-14), not a proposal for future
 bindings. Start with the complete example in [authoring](authoring.md). EVA also
 publishes a JSON Schema for this format at
 [`docs/schemas/package.schema.json`](https://github.com/colonelpanic8/eva/blob/main/docs/schemas/package.schema.json);
@@ -27,8 +27,7 @@ A capability has these fields:
 
 | Field | Required | Meaning |
 | --- | --- | --- |
-| `tool` | Yes | An MCP tool object: `name`, `description`, `inputSchema`, and optional `title`, `outputSchema`, `annotations`, `_meta` |
-| `title` | One of | Nonempty action title, at most 120 characters. Prefer `tool.title`; this capability-level field is a legacy alias, and one of the two is required |
+| `tool` | Yes | An MCP tool object: `name`, `title`, `description`, `inputSchema`, and optional `outputSchema`, `annotations`, `_meta` |
 | `effects` | No | `read`, `write`, `external_handoff`, or `unknown`; defaults to unknown |
 | `execution` | Yes | Execution contract below |
 | `binding` | Yes | One binding below |
@@ -36,8 +35,8 @@ A capability has these fields:
 | `receipts` | No | `success` and/or `handlerMissing`, each 1–1,000 characters |
 | `_meta` | No | Any object. EVA digests it into the contract but never interprets it; the only place for vendor data |
 
-Tool names match `[A-Za-z_][A-Za-z0-9_]{0,63}`; descriptions are 1–2,000
-characters. Tool names are local to the plugin; EVA assigns qualified capability
+Tool names match `[A-Za-z_][A-Za-z0-9_]{0,63}`; titles are 1–120 characters and
+descriptions are 1–2,000. Tool names are local to the plugin; EVA assigns qualified capability
 IDs from the installed instance. Do not hard-code EVA's instance ID in a package.
 Titles, descriptions, and receipt text are attributed external data. They cannot
 override grants, status, or model policy.
@@ -133,9 +132,8 @@ The `execution` contract:
 ```
 
 `mode` (`synchronous` or `handoff`) and `requiresForeground` are required.
-`maxWaitMillis` is optional, null or a positive integer. `cancellation`,
-`idempotency`, and `reconciliation` are optional, default to `none`, and accept
-only `none`; older packages that spell them out remain valid. Intents require
+`maxWaitMillis` is optional, null or a positive integer. There are no other
+execution fields. Intents require
 handoff and foreground true; HTTP/content require synchronous mode. Set
 foreground according to whether the operation needs EVA's visible activity.
 
