@@ -28,11 +28,13 @@ outcomes, so the receipt says the send was requested, not delivered.
 There is no `send` for a new agent: creating one goes through Paseo's New
 workspace form (project, model, isolation), which a link cannot fill.
 
-## What the package cannot do
+## Where the IDs come from
 
-Paseo exposes no read interface an EVA package can call: no content provider
-and no HTTP API reachable from the phone without the app's pairing secrets.
-The package therefore cannot list agents, workspaces, or hosts, and the model
-has to learn IDs from the user or from a prior conversation. Listing and status
-reads belong to EVA's installed-app AIDL protocol, which Paseo does not ship
-yet.
+A package cannot read from Paseo: there is no content provider and no HTTPS
+API reachable from the phone without the app's pairing secrets. Listing is
+instead served by Paseo's installed extension service (EVA protocol v1,
+action `com.colonelpanic.eva.action.EXTENSION`), which EVA discovers on its
+own and which exposes `list_workspaces` and `list_agents` from a catalog Paseo
+publishes while it is open. Enable that extension in EVA beside this package;
+the model lists, picks an ID, and hands it to a capability here. Without it,
+IDs have to come from the user or a prior conversation.
