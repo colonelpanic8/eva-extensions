@@ -79,5 +79,12 @@ returning partial rows. A timeout after submission remains `UNKNOWN`.
 
 The 0.2.1 contract requires re-enablement and renewed action grants. Its URI,
 column and scalar mappings were checked against Mova 7.0.1's `TodoProvider`,
-`ProviderRows`, and `TemplateProviderRows`, and decoded by EVA's JVM tests.
-Device verification remains pending.
+`ProviderRows`, and `TemplateProviderRows`, and decoded by EVA's JVM tests. On
+2026-09-14, all 15 capabilities were exercised with EVA Debug and Mova 7.0.1 on
+a Pixel 11 Pro Fold running Android 17. The Android permission flow granted
+provider access; template, todo, path-id and agenda reads returned live rows;
+each intent opened its pinned Mova activity without a chooser. A disposable todo
+was created, read, opened, searched, shown in the agenda, updated, rescheduled,
+completed and deleted, with each mutation checked by a later provider read. The
+typing and voice capture activities were opened and cancelled without creating
+additional todos, and refresh was handed off with `git=false`.
