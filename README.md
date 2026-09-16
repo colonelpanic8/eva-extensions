@@ -32,14 +32,21 @@ app matching, versioning, and publishing your own.
 | Package | What it does | Verification |
 | --- | --- | --- |
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
+| [Calendar](packages/calendar.json) | Open a prefilled new event in the calendar app | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
+| [Email](packages/email.json) | Open an addressed email draft with optional subject and body | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
 | [Google Maps](packages/google-maps.json) | Search the map through `geo:` and start turn-by-turn navigation by travel mode through `google.navigation:` | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
 | [Mova](packages/mova.json) | Discover templates, todos and agenda rows; create and manage todos through Mova's Android intents | All 15 capabilities verified with EVA Debug and Mova 7.0.1 on a Pixel 11 Pro Fold |
+| [Settings](packages/settings.json) | Open a named settings screen through Android's settings actions | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
+| [Web](packages/web.json) | Web search, and open an http or https page | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
 | [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch and EVA's `content-provider-execution` branch; device test deferred |
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
 installable `packages/` directory.
+
+The Web, Email, Calendar, and Settings packages are EVA's stock Android actions
+expressed as data; see their [interface notes](docs/stock-android.md).
 
 The Google Maps package uses the vendor-neutral `geo:` scheme for search and
 Google's documented `google.navigation:` intent for navigation. See its
