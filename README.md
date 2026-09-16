@@ -32,6 +32,7 @@ app matching, versioning, and publishing your own.
 | Package | What it does | Verification |
 | --- | --- | --- |
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
+| [Google Maps](packages/google-maps.json) | Search the map through `geo:` and start turn-by-turn navigation by travel mode through `google.navigation:` | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
 | [Messages](packages/messages.json) | Open an addressed, unsent SMS draft | Typed handoff verified on Pixel; does not send |
 | [Mova](packages/mova.json) | Discover templates, todos and agenda rows; create and manage todos through Mova's Android intents | All 15 capabilities verified with EVA Debug and Mova 7.0.1 on a Pixel 11 Pro Fold |
 | [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch and EVA's `content-provider-execution` branch; device test deferred |
@@ -39,6 +40,10 @@ app matching, versioning, and publishing your own.
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
 installable `packages/` directory.
+
+The Google Maps package uses the vendor-neutral `geo:` scheme for search and
+Google's documented `google.navigation:` intent for navigation. See its
+[interface and verification notes](docs/google-maps.md).
 
 The Mova package targets the Android app rather than the org-agenda HTTP API.
 See its [read, action and permission setup notes](docs/mova.md). Reads require an
