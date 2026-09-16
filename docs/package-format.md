@@ -165,13 +165,22 @@ Required: `kind: "android.intent"`, `action`.
 Optional: `uri`, `extras`, `package`, `class`, `mimeType`, `packageByName`.
 
 - `action`: fixed string up to 200 characters, starting with a letter and
-  otherwise letters, digits, underscores, or dots.
+  otherwise letters, digits, underscores, or dots. Or a string argument slot with a
+  `values` map covering the argument's enum, every value being such an action:
+  `{"argument":"screen","type":"string","required":true,"values":{"wifi":"android.settings.WIFI_SETTINGS"}}`.
+  The publisher still lists every action that can launch.
 - `package`: fixed dotted package ID. `class` requires package and a fully
   qualified fixed activity name, up to 300 characters. Android export and
   permission checks still apply. No model-supplied class, flags, or component.
-- `uri`: `{base, query?, path?}` or `{base, opaque}`. Base is fixed, absolute, up to
-  2,000 characters, with no query, fragment, or user info. Schemes `intent`,
-  `file`, `content`, `javascript`, and `data` are forbidden here.
+- `uri`: `{base, query?, path?}`, `{base, opaque}`, or `{argument, schemes}`. Base is
+  fixed, absolute, up to 2,000 characters, with no query, fragment, or user info.
+  Schemes `intent`, `file`, `javascript`, and `data` are forbidden; a `content:`
+  base is accepted only with no query, path, or opaque slot at all, for a fixed
+  provider insert such as `content://com.android.calendar/events`.
+  `{"argument":"url","schemes":["http","https"]}` launches the named string
+  argument as the whole data URI when it parses as absolute with a listed scheme;
+  pair it with the `httpUrl` validator. Use this only for a tool whose purpose is
+  opening an address the user chose, as in [Web](../packages/web.json).
 - `path`: maps `{name}` placeholders written into the base after its scheme to
   slots, as in `google.navigation:q={destination}&mode={mode}`. Each value is
   percent-encoded whole and must be present and nonempty at invocation. Every
