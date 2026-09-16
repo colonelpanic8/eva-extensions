@@ -125,7 +125,7 @@ re-enablement, even if only descriptive text changed.
    definition, then commit and publish the package as described in [repositories](repositories.md).
 
 File reimports create separate instances. For testing updates rather than fresh
-installs, use a stable raw HTTPS package or repository index URL.
+installs, use a stable catalog repository or raw HTTPS package URL.
 
 Timeouts after submission mean `UNKNOWN`, not cancellation. Check the target
 before retrying a write. An imported mutation following a tool result needs a
@@ -141,7 +141,7 @@ not fetch missing pages or provide strict write semantics to an older server.
 | --- | --- |
 | “Unexpected or missing fields” | Exact names and required fields in the [reference](package-format.md); unknown keys are rejected |
 | Preview fails for a GitHub URL | Use `raw.githubusercontent.com`, not a `github.com/.../blob/...` page |
-| Repository does not refresh | Confirm the URL returns the raw `index.json` with HTTP 200 and regenerate it after package changes |
+| Repository does not refresh | Confirm the HTTPS Git URL clones anonymously and that `packages/*.json` files decode; the refresh notice names files that were skipped |
 | Changed package cannot install | Increase `version`; changed content at the same version and downgrades are refused |
 | Plugin visible but model cannot use it | Enable/grant, reconnect, and check catalog overflow/availability |
 | App not detected | Matching depends on Android visibility; try manual import and check actual intent handling |

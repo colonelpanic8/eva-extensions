@@ -1,107 +1,58 @@
 # Repositories, imports, and updates
 
-EVA fetches JSON over HTTPS; it does not clone Git repositories. GitHub is a
-convenient host, but the configured URL must return a raw file with HTTP 200 and
-without redirects.
-
-## Layout and index
+A package catalog is a Git repository with one self-contained JSON file per
+package under `packages/`. Nothing else is required: no index, no digests, no
+build step.
 
 ```text
 README.md
-index.json
 packages/
   caffeine.json
+  google-maps.json
   messages.json
   mova.json
-update-index.py
 docs/
 ```
 
-Each package is self-contained. It cannot include another file, download code,
-load a remote schema, or refer to a repository-local credentials file.
+EVA keeps a read-only clone of the configured catalog on the phone. **Extensions
+→ Browse → Refresh available extensions** fetches the clone's branch, fast-forwards
+to the remote head, and lists every `packages/*.json` that decodes. A file that
+does not decode is named in the refresh notice and skipped, so one broken package
+never hides the others; two files declaring the same `id` fail the refresh. Users
+select an entry, review the preview, then install or update it from the exact
+bytes in the clone. Refreshing alone never installs or authorizes anything.
 
-An index has exactly `formatVersion: 1` and `packages`. Each listing has exactly
-the following fields (the digest below is illustrative):
-
-```json
-{
-  "formatVersion": 1,
-  "packages": [
-    {
-      "id": "community.example",
-      "version": "0.1.0",
-      "title": "Example",
-      "url": "packages/example.json",
-      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "androidPackages": []
-    }
-  ]
-}
-```
-
-The index is limited to 1 MiB and 1,000 listings with unique IDs. A listing ID
-is limited to 128 characters, version to 40, title to 120, and URL to 2,048.
-`sha256` is exactly 64 lowercase hexadecimal characters over the exact package
-file bytes, including whitespace and the final newline. `androidPackages` is
-required in the index, even when empty, and must match the package array in order.
-
-Relative URLs resolve against the index URL. Absolute URLs are allowed only on
-the same HTTPS scheme, host, and port. Package files must match the listing's ID,
-version, digest, and app hints. Unknown index keys are rejected. Use stable IDs
-and source URLs.
-
-Generate this repository's index with:
-
-```sh
-python3 update-index.py
-git diff -- packages/ index.json
-```
-
-The generator reads direct `packages/*.json` files, sorts their names, checks for
-duplicate IDs, and writes exact-byte hashes. It does not validate the complete
-package format. Preview packages with EVA before release.
-
-## Publish and refresh
-
-For a new repository, add valid package files, generate the index, and publish
-the packages and index together. Give users the raw index URL:
+The catalog remote must be an HTTPS Git URL without credentials, for example:
 
 ```text
-https://raw.githubusercontent.com/OWNER/REPOSITORY/main/index.json
+https://github.com/colonelpanic8/eva-extensions.git
 ```
 
-A normal GitHub repository URL or `blob/main/index.json` URL returns HTML or a
-redirect and is not accepted. Download requests require HTTP 200, have a
-20-second timeout, and refuse redirects, embedded URL credentials, and fragments.
-Authenticated repositories are not supported.
+The clone tracks the branch that was the remote's default when it was first
+cloned. Private catalogs are not supported.
 
-In EVA, **Extensions → Browse → Refresh plugin repository** fetches listings.
-Users select an entry, review the preview, then install or update it. Installation
-uses the exact previewed bytes, without a second download. A mismatch after files
-change means refresh and preview again.
+A package can also be previewed from a raw HTTPS URL of the file itself, or
+imported from a local file through **Import plugin file**. Each file import gets
+its own source and instance identity; reimporting a file is not an update.
 
 ## Versions and installed identity
 
 The descriptive package ID is not an Android package ID, signature, or grant.
-EVA creates an instance ID on first install. An update preserves that instance
-only when the source and declared package ID match. Importing from a different
-index or raw URL creates a separate installation even when the JSON has the same ID.
+EVA creates an instance ID on first install and preserves it while the source
+repository and declared package ID match. The same JSON installed from a
+different catalog or a raw URL is a separate installation.
 
 Changed canonical content must have a strictly higher three-part version.
 Same-version changes and downgrades are refused. Bump for schema, binding,
 description, title, receipt, version, or matching-hint changes; the whole
-canonical document participates in grants. Formatting and object-key order change
-the index byte hash but do not change the canonical contract digest. Array order does.
+canonical document participates in grants. Formatting and object-key order do
+not change the canonical contract digest. Array order does.
 
 An unchanged contract retains grants. A changed contract requires re-enablement
 and write grants again; a larger version does not confer trust. Replacement is
 validated before it overwrites the working installation. Historical receipts
 retain prior attribution. Removing a plugin removes its installed definition;
 it does not uninstall the target app or undo external actions.
-
-A standalone raw HTTPS package URL supports the same preview and install flow
-without an index. File imports are bounded and receive a fresh source and instance
-identity. Reimporting a local file is not an update.
 
 Current storage limits are 64 imported instances and 4 MiB total serialized
 installation storage. Model connections admit at most 64 tools: controls first,
@@ -125,6 +76,6 @@ app inventory as part of repository matching.
 - Keep secrets out; refer to credentials by name.
 - Check the [supported binding status](authoring.md#choose-an-interface).
 - Validate full JSON in EVA's preview, then test a safe real invocation.
-- Bump the version and regenerate exact-byte hashes together.
+- Bump the version with every content change and commit the package file.
 - Check all local Markdown links and label hypothetical examples explicitly.
 - Record device verification separately from codec/JVM verification.

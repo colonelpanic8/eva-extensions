@@ -7,14 +7,14 @@ Packages contain data, never executable code.
 
 ## Install a plugin
 
-In EVA, open **Extensions → Browse**, enter this raw index URL, and select
-**Refresh plugin repository**:
+This repository is EVA's default catalog. In EVA, open **Extensions → Browse**
+and select **Refresh available extensions**; EVA keeps a read-only clone of
 
 ```text
-https://raw.githubusercontent.com/colonelpanic8/eva-extensions/main/index.json
+https://github.com/colonelpanic8/eva-extensions.git
 ```
 
-Preview and install a package, then enable it in **Installed**. Expand its row to
+and lists every package under `packages/`. Preview and install a package, then enable it in **Installed**. Expand its row to
 grant individual write actions. Reads are enabled with the plugin; writes and
 unknown effects require separate approval. Reconnect your conversation to expose
 new actions to the model. Refreshing the repository alone does not install updates.
@@ -26,8 +26,8 @@ file**. Use raw file URLs, not GitHub's HTML “blob” pages.
 
 Start with the [authoring guide](docs/authoring.md), then use the
 [complete v1 format reference](docs/package-format.md). The
-[repository and update guide](docs/repositories.md) explains indexes and hashes,
-app matching, versioning, and publishing your own repository.
+[repository and update guide](docs/repositories.md) explains catalog repositories,
+app matching, versioning, and publishing your own.
 
 | Package | What it does | Verification |
 | --- | --- | --- |
@@ -55,10 +55,10 @@ AppFunctions is another adapter, not a binding kind in these JSON files.
 
 ## Contribute
 
-Keep each plugin in one `packages/<name>.json` file. Increase its three-part
-version when content changes, run `python3 update-index.py`, and commit the package
-and generated index together. Validate through EVA's preview and test the actual
-action before claiming device support. Never commit credentials.
+Keep each plugin in one `packages/<name>.json` file and increase its three-part
+version when content changes; there is no index to regenerate. Validate through
+EVA's preview and test the actual action before claiming device support. Never
+commit credentials.
 
 Format documentation was checked against EVA
 `000f95f`, which implements content-provider execution and typed content URI slots.
