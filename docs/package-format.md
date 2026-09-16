@@ -101,7 +101,11 @@ path/selection values. Two forms:
 
 `type` is string/integer/number/boolean. An argument slot must refer to a tool
 property of the exact same type. Optional `default` is a non-null scalar meeting
-that property's schema; optional `required` is a boolean, default false.
+that property's schema; optional `required` is a boolean, default false. A string
+argument slot whose property declares an `enum` may add `values`, an object mapping
+every enum value to the string actually sent, e.g.
+`{"argument":"travelmode","type":"string","values":{"driving":"d","bicycling":"b"}}`;
+the keys must equal the enum exactly and each value is 1–200 characters.
 Literal slots have exactly `value` and `type`, with a matching non-null scalar.
 Inside an HTTP `requestBody` only, an argument slot may use `type: "array"` to
 place a whole scalar-list argument as a JSON array (with an optional array
@@ -165,14 +169,20 @@ Optional: `uri`, `extras`, `package`, `class`, `mimeType`, `packageByName`.
 - `package`: fixed dotted package ID. `class` requires package and a fully
   qualified fixed activity name, up to 300 characters. Android export and
   permission checks still apply. No model-supplied class, flags, or component.
-- `uri`: `{base, query?}` or `{base, opaque}`. Base is fixed, absolute, up to
+- `uri`: `{base, query?, path?}` or `{base, opaque}`. Base is fixed, absolute, up to
   2,000 characters, with no query, fragment, or user info. Schemes `intent`,
   `file`, `content`, `javascript`, and `data` are forbidden here.
+- `path`: maps `{name}` placeholders written into the base after its scheme to
+  slots, as in `google.navigation:q={destination}&mode={mode}`. Each value is
+  percent-encoded whole and must be present and nonempty at invocation. Every
+  placeholder needs one mapping and vice versa; a placeholder cannot form the
+  scheme. See [Google Maps](../packages/google-maps.json).
 - `query` and `extras`: maps of fixed names to slots, at most 64 each.
   Names are 1–200 characters, without control characters. Missing optional values
   are omitted. Query names/values are percent-encoded; never pre-encode arguments.
 - `opaque`: string slot, with scheme-only base such as `smsto:` or `tel:`.
-  The entire value is encoded and appended. Cannot coexist with query.
+  The entire value is encoded and appended. Cannot coexist with query or path;
+  equivalent to `base: "smsto:{number}"` with one path slot.
 - `mimeType`: fixed lowercase MIME type, e.g. `text/plain`; not a slot.
 - `packageByName`: name of a string input; mutually exclusive with package.
   **Parsed but Android execution currently refuses it.** Do not publish an action
