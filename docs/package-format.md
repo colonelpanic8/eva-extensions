@@ -1,6 +1,6 @@
 # Declarative package format v1
 
-This is the author-facing contract for JSON plugins. It describes EVA's parser
+This is the author-facing contract for JSON extensions. It describes EVA's parser
 and Android host including content execution at commit `000f95f`. Start with the
 complete example in [authoring](authoring.md). EVA also
 publishes a JSON Schema for this format at
@@ -36,7 +36,7 @@ A capability has these fields:
 | `_meta` | No | Any object. EVA digests it into the contract but never interprets it; the only place for vendor data |
 
 Tool names match `[A-Za-z_][A-Za-z0-9_]{0,63}`; titles are 1–120 characters and
-descriptions are 1–2,000. Tool names are local to the plugin; EVA assigns qualified capability
+descriptions are 1–2,000. Tool names are local to the extension; EVA assigns qualified capability
 IDs from the installed instance. Do not hard-code EVA's instance ID in a package.
 Titles, descriptions, and receipt text are attributed external data. They cannot
 override grants, status, or model policy.
@@ -170,7 +170,7 @@ Effect floors: content queries are at least read; intents are at least external
 handoff; POST/PUT/PATCH/DELETE are writes. Omitted/unknown effects remain unknown.
 GET is not automatically read:
 declare read only when accurate. All non-read effects need individual grants.
-The user enables a plugin to grant claimed reads. No file field grants authority
+The user enables an extension to grant claimed reads. No file field grants authority
 automatically. Imported mutations after a tool result need a new user request.
 Additions become model-visible on reconnect; revocation blocks new execution.
 
@@ -423,4 +423,4 @@ Installed package bytes, enablement and action grants use EVA's portable
 configuration. Supported content permissions participate in `device.authorizations`
 in `eva.yaml`; restoring it reports missing providers/permissions and requires
 device-local authorization. Configuration cannot grant Android permission.
-See [Mova setup](mova.md#setup-and-verification) and [Paseo's catalog](paseo.md#where-the-ids-come-from).
+See the `setup` of [Mova](../packages/mova.json) and [Paseo](../packages/paseo.json).
