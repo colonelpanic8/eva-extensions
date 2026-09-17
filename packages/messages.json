@@ -1,8 +1,9 @@
 {
   "formatVersion": 1,
   "id": "android.messages",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Messages",
+  "description": "Open an addressed SMS draft in whichever messaging app Android offers. The user reviews the text and taps Send; this extension never sends a message and cannot confirm delivery.",
   "capabilities": [
     {
       "tool": {

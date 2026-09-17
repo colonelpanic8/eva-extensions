@@ -49,6 +49,14 @@ clients; `effects` remains EVA's authority, and a `readOnlyHint` or
 carries (see [result projection](#result-projection)); its root is an object and
 it may nest objects and arrays, unlike the input schema.
 
+Optional `description` (up to 2,000 characters) says what the extension is for,
+and optional `setup` is 1–8 short strings (up to 300 characters each) naming what
+the user must do outside EVA before the actions work. EVA shows both above the
+capability list when the user reviews an install, and both are part of the
+canonical document, so changing them changes the digest and requires
+re-enablement. State requirements, not assurances: an extension cannot vouch for
+its own trustworthiness or verification.
+
 ## Input schema
 
 The root schema is a closed object. Required keys, even for no-argument tools:

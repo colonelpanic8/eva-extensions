@@ -1,8 +1,13 @@
 {
   "formatVersion": 1,
   "id": "android.paseo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Paseo",
+  "description": "Drive the Paseo coding-agent app through its paseo:// links and read its workspace and agent catalog. List workspaces or agents, take an id from the rows, then open one or put a prompt in its composer. Paseo resolves hosts, workspaces, and agents itself and shows its own message when an id is unknown, which EVA does not see.",
+  "setup": [
+    "Install Paseo and open it at least once: it publishes the workspace and agent catalog while the app has been in the foreground, so anything created since then is missing until it opens again.",
+    "To let the send action actually send, turn on Settings, General, Send prompts from links in Paseo. With it off Paseo drafts the prompt instead, and EVA cannot tell the two apart."
+  ],
   "androidPackages": [
     "sh.paseo",
     "sh.paseo.assembly"
