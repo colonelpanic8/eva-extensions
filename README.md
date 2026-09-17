@@ -55,7 +55,7 @@ Google's documented `google.navigation:` intent for navigation. See its
 The Mova package targets the Android app rather than the org-agenda HTTP API.
 See its [read, action and permission setup notes](docs/mova.md). Reads require an
 EVA build with content execution and Mova's Android read grant. Updating the
-package to 0.2.1 requires re-enablement and renewed action grants.
+package to 0.2.2 requires re-enablement and renewed action grants.
 
 The Paseo package drives the coding-agent app's `paseo://` links. See its
 [draft-versus-send and host resolution notes](docs/paseo.md).

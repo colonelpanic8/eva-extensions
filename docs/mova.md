@@ -25,12 +25,15 @@ confirms `delete_todo`. `refresh` never has a Mova confirmation sheet.
 `create_todo` accepts a known template key and Mova's universal capture values:
 `title`, `scheduled`, `deadline`, `priority`, `tags`, and `state`. It also passes
 `body`, which only has an effect when the selected template declares a body
-prompt. Mova can accept arbitrary query parameters whose names match prompts in
-the selected template, but this repository package cannot expose them
-generically: EVA v1 tool schemas are closed scalar objects and intent bindings
-map only statically named arguments to statically named query parameters. A
-custom package can add known prompt names explicitly, but the shared package
-cannot discover a user's templates and change its tool schema at runtime.
+prompt. Since 0.2.2 its `prompts` argument is a string map spread into further
+query parameters, one per template prompt name: read the template's prompts
+with `list_templates` (its `prompts_json` column decodes into `[{name, type,
+required}]` data), then pass `{"Attendees":"Sam, Kat","Room":"4"}`. Mova matches
+prompt names case-insensitively, ignores names the template does not declare,
+and refuses a capture that leaves a required prompt empty. A key equal to one of
+the package's fixed parameters (`title`, `template`, `confirm`, …) is refused by
+EVA before launch. The tool schema itself stays static; the prompt list is data
+the model reads, not a schema change.
 
 ## Discover templates and todos
 
@@ -41,7 +44,7 @@ returns `key`, `name`, `is_default`, `title_prompt`, `prompts_json`, and
 requires the dangerous Android permission
 `com.colonelpanic.mova.permission.READ_TODOS`.
 
-Package version 0.2.1 adds these reads beside the existing intent actions:
+Package version 0.2.1 added these reads beside the intent actions; 0.2.2 decodes `prompts_json` and adds the `prompts` map to `create_todo`:
 
 | Capability | Provider request | Next action |
 | --- | --- | --- |
@@ -77,7 +80,7 @@ grant access. Open Mova and configure the active server first. Missing access
 is a setup rejection; a provider failure or null cursor fails the read without
 returning partial rows. A timeout after submission remains `UNKNOWN`.
 
-The 0.2.1 contract requires re-enablement and renewed action grants. Its URI,
+Each contract change (0.2.1, 0.2.2) requires re-enablement and renewed action grants. Its URI,
 column and scalar mappings were checked against Mova 7.0.1's `TodoProvider`,
 `ProviderRows`, and `TemplateProviderRows`, and decoded by EVA's JVM tests. On
 2026-09-14, all 15 capabilities were exercised with EVA Debug and Mova 7.0.1 on
