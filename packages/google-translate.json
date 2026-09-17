@@ -1,0 +1,78 @@
+{
+  "formatVersion": 1,
+  "id": "android.google-translate",
+  "version": "0.1.0",
+  "title": "Google Translate",
+  "description": "Open Google Translate's Live translate screen with the conversation's languages already set, through the googletranslate: link the app publishes for its own launcher shortcut. Google Translate reports nothing back, so the receipt says the screen was opened, never that anything was heard, translated, or spoken.",
+  "setup": [
+    "Install Google Translate (com.google.android.apps.translate); this action pins its main activity and fails if the app is absent.",
+    "Let Google Translate use the microphone. It asks the first time Live translate runs, and EVA cannot grant it.",
+    "Download the languages inside Google Translate to translate them without a network connection."
+  ],
+  "androidPackages": [
+    "com.google.android.apps.translate"
+  ],
+  "capabilities": [
+    {
+      "tool": {
+        "name": "live_translate",
+        "title": "Start live translation",
+        "description": "Open Google Translate's Live translate screen, which keeps the microphone open, transcribes each side of a spoken conversation, and reads the translation aloud in the other language. Give languages as Google Translate's codes: en, es, fr, de, it, pt, pt-BR, nl, ru, uk, pl, tr, ar, he, hi, fa, th, vi, id, ja, ko, zh-CN, zh-TW. Use it when the user wants to talk with someone in another language, not to translate text EVA already has. A code Google Translate does not recognize is discarded and the app keeps whichever languages it last used. Opening the screen is all this reports; the microphone, the languages the app settles on, and every translation are unverified.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language to translate into, such as es, ja, or pt-BR."
+            },
+            "source_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language being spoken, such as en. Omit it, or pass auto, to let the app detect the speaker's language."
+            }
+          },
+          "required": [
+            "target_language"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effects": "external_handoff",
+      "execution": {
+        "mode": "handoff",
+        "requiresForeground": true
+      },
+      "receipts": {
+        "success": "Live translate opened in Google Translate. Whether it is listening is not verified.",
+        "handlerMissing": "Google Translate is not installed, or the installed version does not have the Live translate screen this link opens."
+      },
+      "binding": {
+        "kind": "android.intent",
+        "action": "android.intent.action.VIEW",
+        "package": "com.google.android.apps.translate",
+        "class": "com.google.android.apps.translate.TranslateActivity",
+        "uri": {
+          "base": "googletranslate:///open/speech",
+          "query": {
+            "sl": {
+              "argument": "source_language",
+              "type": "string"
+            },
+            "tl": {
+              "argument": "target_language",
+              "type": "string",
+              "required": true
+            },
+            "launch_in_manual_mode": {
+              "type": "string",
+              "value": "false"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
