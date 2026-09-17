@@ -86,6 +86,13 @@ whitespace/control characters or `,;<>`). These are syntax checks, not delivery
 or account verification. Missing optional inputs are skipped. Unknown validator
 names are rejected. Defaults should also satisfy the intended validator.
 
+A property may also be a string map: `{"type":"object","maxProperties":16,
+"additionalProperties":{"type":"string","maxLength":2000}}` with no `properties` or
+`required`. The request chooses the keys (1–64 characters each, at most
+`maxProperties` of them); the package bounds only the value shape. Use it when the
+target defines parameter names at runtime, such as Mova capture prompts, and pair
+it with an intent `querySpread`.
+
 ## Typed slots and conditional selection
 
 Slots are used for query values, extras, HTTP parameters/body leaves, and content
@@ -186,6 +193,11 @@ Optional: `uri`, `extras`, `package`, `class`, `mimeType`, `packageByName`.
   percent-encoded whole and must be present and nonempty at invocation. Every
   placeholder needs one mapping and vice versa; a placeholder cannot form the
   scheme. See [Google Maps](../packages/google-maps.json).
+- `querySpread`: `{"argument":"prompts"}`, naming a string-map argument whose entries
+  are appended as further percent-encoded query parameters after the fixed ones. An
+  entry whose key equals a fixed query name in any letter case is refused; the
+  request can add parameters but never replace a fixed one. Needs a fixed base
+  and no `opaque` slot. See [Mova](../packages/mova.json) `create_todo`.
 - `query` and `extras`: maps of fixed names to slots, at most 64 each.
   Names are 1–200 characters, without control characters. Missing optional values
   are omitted. Query names/values are percent-encoded; never pre-encode arguments.
@@ -349,7 +361,10 @@ to scalar slots matching every `{name}` placeholder exactly. Each path slot must
 resolve; empty, `.`/`..`, slash and backslash values are rejected. Pass raw
 values, never pre-encoded strings. The expanded URI is bounded to 16 KiB.
 
-Projection maps 1–32 identifier column names to scalar types.
+Projection maps 1–32 identifier column names to scalar types, or to `json` for a
+text cell that EVA decodes into structured data (within the result budget) so an
+embedded document such as Mova's `prompts_json` reaches the model as data.
+Selection cannot target a `json` column.
 Selection is up to 16 `{column,operator,value}` predicates joined with AND;
 columns must be projected, slots must match the column type, and operators are
 =, !=, <, <=, >, >=, LIKE (LIKE only for strings). Values become bound selection
