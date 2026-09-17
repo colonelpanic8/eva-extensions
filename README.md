@@ -48,14 +48,6 @@ records only what a package cannot claim about itself.
 | [Web](packages/web.json) | Web search, and open an http or https page | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch; device test deferred |
 
-Clock requires EVA's existing `com.android.alarm.permission.SET_ALARM` manifest
-permission and an installed app handling Android's alarm/timer intents. JSON cannot
-add Android permissions. Both actions keep the clock UI visible and report only
-handoff, not confirmed creation. EVA builds with the Clock migration install and
-approve this package once as a shipped default, replacing the built-in clock tools;
-removal and disablement are preserved in portable configuration. Older EVA builds
-can import and grant the package explicitly but retain their built-in clock tools.
-
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
 installable `packages/` directory.
