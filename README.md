@@ -38,6 +38,7 @@ records only what a package cannot claim about itself.
 | Extension | What it does | Verification |
 | --- | --- | --- |
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
+| [Clock](packages/clock.json) | Set alarms and start countdown timers through Android's standard clock app intents | Intent shape mirrors EVA's native alarm/timer adapters; device test pending |
 | [Calendar](packages/calendar.json) | Open a prefilled new event in the calendar app | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Email](packages/email.json) | Open an addressed email draft with optional subject and body | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Google Maps](packages/google-maps.json) | Search the map through `geo:` and start turn-by-turn navigation by travel mode through `google.navigation:` | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
@@ -46,6 +47,14 @@ records only what a package cannot claim about itself.
 | [Settings](packages/settings.json) | Open a named settings screen through Android's settings actions | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Web](packages/web.json) | Web search, and open an http or https page | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch; device test deferred |
+
+Clock requires EVA's existing `com.android.alarm.permission.SET_ALARM` manifest
+permission and an installed app handling Android's alarm/timer intents. JSON cannot
+add Android permissions. Both actions keep the clock UI visible and report only
+handoff, not confirmed creation. EVA builds with the Clock migration install and
+approve this package once as a shipped default, replacing the built-in clock tools;
+removal and disablement are preserved in portable configuration. Older EVA builds
+can import and grant the package explicitly but retain their built-in clock tools.
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
