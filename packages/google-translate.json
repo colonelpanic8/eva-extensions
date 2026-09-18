@@ -40,7 +40,7 @@
                 "listening",
                 "text"
               ],
-              "description": "How the screen should run. conversation is a two-way exchange with both sides spoken aloud, and is the default. listening follows one person speaking without answering them. text shows the translation without speaking it. Omitting this makes Google Translate ask first."
+              "description": "How the screen should run. conversation is a two-way exchange with both sides spoken aloud, and is what EVA sends when this is omitted. listening follows one person speaking without answering them. text shows the translation without speaking it."
             },
             "press_to_talk": {
               "type": "boolean",
