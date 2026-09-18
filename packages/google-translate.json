@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "id": "android.google-translate",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Google Translate",
   "description": "Open Google Translate on the screen that fits the request \u2014 a live spoken conversation, the camera, a transcription of someone speaking, or dictation \u2014 with the languages already set, through the googletranslate: links the app publishes for its own shortcuts. Google Translate reports nothing back, so a receipt says the screen was opened, never that anything was heard, seen, or translated.",
   "setup": [
@@ -17,7 +17,7 @@
       "tool": {
         "name": "live_translate",
         "title": "Start live translation",
-        "description": "Open Google Translate's Live translate screen, which keeps the microphone open, transcribes each side of a spoken conversation, and reads the translation aloud in the other language. Give languages as Google Translate's codes: en, es, fr, de, it, pt, pt-BR, nl, ru, uk, pl, tr, ar, he, hi, fa, th, vi, id, ja, ko, zh-CN, zh-TW. Use it when the user wants to talk with someone in another language, not to translate text EVA already has. A code Google Translate does not recognize is discarded and the app keeps whichever languages it last used. Opening the screen is all this reports; the microphone, the languages the app settles on, and every translation are unverified.",
+        "description": "Open Google Translate's Live translate screen, which listens to speech and translates between two languages. Choose audio_mode: conversation for a two-sided exchange read aloud in both directions, listening to follow someone speaking without replying to them, or text to read the translation instead of hearing it. Give languages as Google Translate's codes: en, es, fr, de, it, pt, pt-BR, nl, ru, uk, pl, tr, ar, he, hi, fa, th, vi, id, ja, ko, zh-CN, zh-TW. Use it when the user wants to talk with, or listen to, someone in another language, not to translate text EVA already has. A code Google Translate does not recognize is discarded and the app keeps whichever languages it last used. Opening the screen is all this reports; the microphone, the languages the app settles on, and every translation are unverified.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -32,6 +32,19 @@
               "minLength": 2,
               "maxLength": 16,
               "description": "Google Translate code for the language being spoken, such as en. Omit it, or pass auto, to let the app detect the speaker's language."
+            },
+            "audio_mode": {
+              "type": "string",
+              "enum": [
+                "conversation",
+                "listening",
+                "text"
+              ],
+              "description": "How the screen should run. conversation is a two-way exchange with both sides spoken aloud, and is the default. listening follows one person speaking without answering them. text shows the translation without speaking it. Omitting this makes Google Translate ask first."
+            },
+            "press_to_talk": {
+              "type": "boolean",
+              "description": "Wait for a tap before each turn instead of listening hands-free. Google Translate's own preference can still force this on."
             }
           },
           "required": [
@@ -66,9 +79,15 @@
               "type": "string",
               "required": true
             },
-            "launch_in_manual_mode": {
+            "audioMode": {
+              "argument": "audio_mode",
               "type": "string",
-              "value": "false"
+              "default": "conversation"
+            },
+            "launch_in_manual_mode": {
+              "argument": "press_to_talk",
+              "type": "boolean",
+              "default": false
             }
           }
         }
