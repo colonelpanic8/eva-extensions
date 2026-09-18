@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "id": "android.google-translate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Google Translate",
-  "description": "Open Google Translate's Live translate screen with the conversation's languages already set, through the googletranslate: link the app publishes for its own launcher shortcut. Google Translate reports nothing back, so the receipt says the screen was opened, never that anything was heard, translated, or spoken.",
+  "description": "Open Google Translate on the screen that fits the request \u2014 a live spoken conversation, the camera, a transcription of someone speaking, or dictation \u2014 with the languages already set, through the googletranslate: links the app publishes for its own shortcuts. Google Translate reports nothing back, so a receipt says the screen was opened, never that anything was heard, seen, or translated.",
   "setup": [
-    "Install Google Translate (com.google.android.apps.translate); this action pins its main activity and fails if the app is absent.",
-    "Let Google Translate use the microphone. It asks the first time Live translate runs, and EVA cannot grant it.",
+    "Install Google Translate (com.google.android.apps.translate); these actions pin its main activity and fail if the app is absent.",
+    "Let Google Translate use the microphone, and the camera for the camera action. It asks the first time each screen runs, and EVA cannot grant either.",
     "Download the languages inside Google Translate to translate them without a network connection."
   ],
   "androidPackages": [
@@ -69,6 +69,177 @@
             "launch_in_manual_mode": {
               "type": "string",
               "value": "false"
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": {
+        "name": "camera_translate",
+        "title": "Translate with the camera",
+        "description": "Open Google Translate's camera, which overlays a translation on whatever the phone is pointed at. Use it for a sign, a menu, a label, or any other printed text in front of the user, not for text EVA already has. A code Google Translate does not recognize is discarded and the app keeps whichever languages it last used. Opening the screen is all this reports; the camera, the languages the app settles on, and every translation are unverified.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language to translate into, such as es, ja, or pt-BR. Codes: en, es, fr, de, it, pt, pt-BR, nl, ru, uk, pl, tr, ar, he, hi, fa, th, vi, id, ja, ko, zh-CN, zh-TW."
+            },
+            "source_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language being translated from, such as en. Omit it, or pass auto, to let the app detect it."
+            }
+          },
+          "required": [
+            "target_language"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effects": "external_handoff",
+      "execution": {
+        "mode": "handoff",
+        "requiresForeground": true
+      },
+      "receipts": {
+        "success": "Camera translation opened in Google Translate. What it captures is not verified.",
+        "handlerMissing": "Google Translate is not installed, or the installed version does not have the screen this link opens."
+      },
+      "binding": {
+        "kind": "android.intent",
+        "action": "android.intent.action.VIEW",
+        "package": "com.google.android.apps.translate",
+        "class": "com.google.android.apps.translate.TranslateActivity",
+        "uri": {
+          "base": "googletranslate:///open/camera",
+          "query": {
+            "sl": {
+              "argument": "source_language",
+              "type": "string"
+            },
+            "tl": {
+              "argument": "target_language",
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": {
+        "name": "transcribe",
+        "title": "Transcribe and translate speech",
+        "description": "Open Google Translate's Transcribe screen, which listens continuously to one speaker and builds a running translation of what they say. Use it for a lecture, an announcement, or anyone talking at length in one language; use live translation instead for a two-sided conversation. Opening the screen is all this reports; nothing about what is heard or transcribed is verified.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language to translate into, such as es, ja, or pt-BR. Codes: en, es, fr, de, it, pt, pt-BR, nl, ru, uk, pl, tr, ar, he, hi, fa, th, vi, id, ja, ko, zh-CN, zh-TW."
+            },
+            "source_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language being translated from, such as en. Omit it, or pass auto, to let the app detect it."
+            }
+          },
+          "required": [
+            "target_language"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effects": "external_handoff",
+      "execution": {
+        "mode": "handoff",
+        "requiresForeground": true
+      },
+      "receipts": {
+        "success": "Transcribe opened in Google Translate. What it hears is not verified.",
+        "handlerMissing": "Google Translate is not installed, or the installed version does not have the screen this link opens."
+      },
+      "binding": {
+        "kind": "android.intent",
+        "action": "android.intent.action.VIEW",
+        "package": "com.google.android.apps.translate",
+        "class": "com.google.android.apps.translate.TranslateActivity",
+        "uri": {
+          "base": "googletranslate:///open/listen",
+          "query": {
+            "sl": {
+              "argument": "source_language",
+              "type": "string"
+            },
+            "tl": {
+              "argument": "target_language",
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool": {
+        "name": "dictate",
+        "title": "Dictate a translation",
+        "description": "Open Google Translate's dictation screen, where the user speaks once and the app shows and speaks the translation, ready to copy or share. Use it to produce one translated phrase the user wants to keep or send, rather than to hold a conversation. Opening the screen is all this reports; the microphone and the translation itself are unverified.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "target_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language to translate into, such as es, ja, or pt-BR. Codes: en, es, fr, de, it, pt, pt-BR, nl, ru, uk, pl, tr, ar, he, hi, fa, th, vi, id, ja, ko, zh-CN, zh-TW."
+            },
+            "source_language": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 16,
+              "description": "Google Translate code for the language being translated from, such as en. Omit it, or pass auto, to let the app detect it."
+            }
+          },
+          "required": [
+            "target_language"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effects": "external_handoff",
+      "execution": {
+        "mode": "handoff",
+        "requiresForeground": true
+      },
+      "receipts": {
+        "success": "Dictation opened in Google Translate. What it hears is not verified.",
+        "handlerMissing": "Google Translate is not installed, or the installed version does not have the screen this link opens."
+      },
+      "binding": {
+        "kind": "android.intent",
+        "action": "android.intent.action.VIEW",
+        "package": "com.google.android.apps.translate",
+        "class": "com.google.android.apps.translate.TranslateActivity",
+        "uri": {
+          "base": "googletranslate:///open/dictation",
+          "query": {
+            "sl": {
+              "argument": "source_language",
+              "type": "string"
+            },
+            "tl": {
+              "argument": "target_language",
+              "type": "string",
+              "required": true
             }
           }
         }
