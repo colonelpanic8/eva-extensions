@@ -39,7 +39,7 @@ app matching, versioning, and publishing your own.
 | [Mova](packages/mova.json) | Discover templates, todos and agenda rows; create and manage todos through Mova's Android intents | All 15 capabilities verified with EVA Debug and Mova 7.0.1 on a Pixel 11 Pro Fold |
 | [Settings](packages/settings.json) | Open a named settings screen through Android's settings actions | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
 | [Web](packages/web.json) | Web search, and open an http or https page | Codec decode and intent construction verified by EVA's JVM tests; device test pending. EVA installs this package by default |
-| [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch and EVA's `content-provider-execution` branch; device test deferred |
+| [Paseo](packages/paseo.json) | List workspaces and agents and read an agent's recent messages through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch and EVA's `content-provider-execution` branch; 0.2.0's `messages` read is written to Paseo's stated provider contract and is not yet checked against a Paseo build; device test deferred |
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
@@ -57,8 +57,11 @@ See its [read, action and permission setup notes](docs/mova.md). Reads require a
 EVA build with content execution and Mova's Android read grant. Updating the
 package to 0.2.2 requires re-enablement and renewed action grants.
 
-The Paseo package drives the coding-agent app's `paseo://` links. See its
-[draft-versus-send and host resolution notes](docs/paseo.md).
+The Paseo package drives the coding-agent app's `paseo://` links and reads its
+content provider. See its [draft-versus-send, host resolution and recent-message
+notes](docs/paseo.md). Version 0.2.0 adds `get_recent_messages`, which is answered
+live by the Paseo app rather than from its published catalog; updating to it
+requires re-enablement.
 
 These documents describe the declarative package protocol. EVA's separate
 installed-service AIDL protocol (in EVA’s `docs/extension-protocol.md`)
