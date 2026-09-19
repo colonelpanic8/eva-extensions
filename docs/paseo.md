@@ -49,8 +49,10 @@ not reachable from this package.
 `workspaceId`, `agentId`, `agentName`, `kind`, `createdAt`, and `text`, most
 recent first. Exactly one of `agentId` and `workspaceId` has to be given, and
 `agentId` wins when both are. With `workspaceId` the provider fans out over the
-workspace's active agents and merges their messages into one ordered list, so
-`agentName` is what tells them apart. `limit` is 1–50 and Paseo defaults to 10.
+workspace's non-archived top-level agents, at most the six most recently
+active, and merges their messages into one ordered list, so `agentName` is what
+tells them apart; a workspace with no such agents returns zero rows. `limit` is
+1–50 and Paseo defaults to 10.
 EVA's input-schema subset has no `oneOf`, so both identifiers are optional in
 the tool schema and the rule is stated in the description instead.
 
@@ -64,11 +66,13 @@ When Paseo cannot answer — the app is not running, the host is offline, the id
 is unknown, or the daemon times out — the provider does not throw. It returns a
 single row whose `kind` is `notice` and whose `text` says what happened and what
 the user can do, so the read still completes with something to report. The other
-`kind` values are `user`, `assistant`, and `tool`.
+`kind` values are `user`, `assistant`, and `tool`; reasoning, todo lists, agent
+errors, and notifications are not rows at all.
 
-`text` is plain text clipped to 1,000 characters, and only the requested window
-is reachable; there is no paging back through a session from here. Hand the user
-to `open_agent` to read a full message or the rest of the history.
+`text` is plain text clipped to 1,000 characters (a `tool` row is a one-line
+summary of at most 200), and only the requested window is reachable; there is
+no paging back through a session from here. Hand the user to `open_agent` to
+read a full message or the rest of the history.
 
 When the user names a workspace by what it is doing rather than by id, the flow
 is two steps: `list_workspaces` with `q` (or `list_agents`) to get the `id`,
