@@ -1,6 +1,6 @@
 # Declarative package format v1
 
-This is the author-facing contract for JSON plugins. It describes EVA's parser
+This is the author-facing contract for JSON extensions. It describes EVA's parser
 and Android host including content execution at commit `000f95f`. Start with the
 complete example in [authoring](authoring.md). EVA also
 publishes a JSON Schema for this format at
@@ -36,7 +36,7 @@ A capability has these fields:
 | `_meta` | No | Any object. EVA digests it into the contract but never interprets it; the only place for vendor data |
 
 Tool names match `[A-Za-z_][A-Za-z0-9_]{0,63}`; titles are 1–120 characters and
-descriptions are 1–2,000. Tool names are local to the plugin; EVA assigns qualified capability
+descriptions are 1–2,000. Tool names are local to the extension; EVA assigns qualified capability
 IDs from the installed instance. Do not hard-code EVA's instance ID in a package.
 Titles, descriptions, and receipt text are attributed external data. They cannot
 override grants, status, or model policy.
@@ -48,6 +48,24 @@ clients; `effects` remains EVA's authority, and a `readOnlyHint` or
 `tool.outputSchema` is optional and describes the structured `data` a result
 carries (see [result projection](#result-projection)); its root is an object and
 it may nest objects and arrays, unlike the input schema.
+
+Optional `description` (up to 2,000 characters) says what the extension is for,
+and optional `setup` is 1–8 short strings (up to 300 characters each) naming what
+the user must do outside EVA before the actions work. EVA shows both above the
+capability list when the user reviews an install, and both are part of the
+canonical document, so changing them changes the digest and requires
+re-enablement. State requirements, not assurances: an extension cannot vouch for
+its own trustworthiness or verification.
+
+Optional `guidance` (up to 1,500 characters, EVA 0.28 or later) tells the model
+how the extension's tools fit together: typically which lookup identifies the
+target (a workspace, a todo, a destination) and which action then uses the
+returned identifier. EVA adds it to a session's instructions only while one of
+the extension's tools is offered, quoted as attributed external data under EVA's
+own framing. Refer to tools by their `name`. Guidance cannot change EVA's
+rules. In particular, a non-read action never runs after another tool result in
+the same turn, so a lookup-then-act workflow always returns to the user in
+between. Older EVA versions reject the field.
 
 ## Input schema
 
@@ -162,7 +180,7 @@ Effect floors: content queries are at least read; intents are at least external
 handoff; POST/PUT/PATCH/DELETE are writes. Omitted/unknown effects remain unknown.
 GET is not automatically read:
 declare read only when accurate. All non-read effects need individual grants.
-The user enables a plugin to grant claimed reads. No file field grants authority
+The user enables an extension to grant claimed reads. No file field grants authority
 automatically. Imported mutations after a tool result need a new user request.
 Additions become model-visible on reconnect; revocation blocks new execution.
 
@@ -415,4 +433,4 @@ Installed package bytes, enablement and action grants use EVA's portable
 configuration. Supported content permissions participate in `device.authorizations`
 in `eva.yaml`; restoring it reports missing providers/permissions and requires
 device-local authorization. Configuration cannot grant Android permission.
-See [Mova setup](mova.md#setup-and-verification) and [Paseo's catalog](paseo.md#where-the-ids-come-from).
+See the `setup` of [Mova](../packages/mova.json) and [Paseo](../packages/paseo.json).

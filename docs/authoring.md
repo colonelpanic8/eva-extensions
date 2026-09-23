@@ -1,6 +1,6 @@
-# Author a plugin
+# Author an extension
 
-A plugin maps model-visible arguments onto an existing app interface. EVA parses
+An extension maps model-visible arguments onto an existing app interface. EVA parses
 the file, previews its destinations and effects, and runs it only after the user
 enables it. You do not add Kotlin, JavaScript, a service, or a registration entry
 to either app.
@@ -21,7 +21,7 @@ permissions, export rules, and background-launch restrictions still apply.
 
 A successful launch proves only `HANDED_OFF`. It cannot prove a message was
 sent, a todo was created, or a setting changed. If you need a confirmed result,
-use an interface that returns evidence. The Messages plugin intentionally opens
+use an interface that returns evidence. The Messages extension intentionally opens
 a draft; declaring it a write does not turn it into direct SMS sending.
 
 ## Start with one action
@@ -79,7 +79,7 @@ For opaque URI data and a named validator, see [Messages](../packages/messages.j
 For HTTP nested body mappings and item projections, see
 [HTTP notes](examples/http-notes.json).
 For reads that discover IDs for intent actions in the same package, see
-[Mova](mova.md) and [Paseo](paseo.md). Content queries return only declared
+[Mova](../packages/mova.json) and [Paseo](../packages/paseo.json). Content queries return only declared
 columns, with row/byte limits and no partial rows. Use typed URI query/path slots
 for providers that take URL parameters; SQL selection is a different interface.
 
@@ -98,20 +98,23 @@ effects as requiring a write grant. Package prose cannot weaken that policy.
 
 Descriptions should state what the action does, prerequisites, and what its
 receipt can establish. Include identifiers in read results if a later action
-needs them. Optional `receipts.success` and `receipts.handlerMissing` are fixed
+needs them. When actions need a lookup first, say so once in the package's
+`guidance`: which read finds the target, how to choose among matches, and which
+identifier the action takes. See [Paseo](../packages/paseo.json) and
+[Mova](../packages/mova.json). Optional `receipts.success` and `receipts.handlerMissing` are fixed
 display text, not templates or evidence.
 
 There is no `enabledByDefault` or per-capability default-grant field. Reads
-follow plugin enablement; users approve other actions. Grants persist for an
+follow extension enablement; users approve other actions. Grants persist for an
 unchanged contract. An update with changed canonical content requires
 re-enablement, even if only descriptive text changed.
 
 ## Test locally, then publish
 
 1. Save the complete JSON file. Use valid JSON without comments or trailing commas.
-2. Import it through **Extensions → Browse → Import plugin file**.
+2. Import it through **Extensions → Browse → Import extension file**.
 3. Inspect the preview. A parse/validation error means nothing was installed.
-4. Install, enable the plugin, and expand it to grant the actions you will test.
+4. Install, enable the extension, and expand it to grant the actions you will test.
 5. For HTTP, configure the named credential and approved server origin under
    **Extensions → Settings**. Keep secrets out of the file. For content reads,
    expand the installed package, check provider availability, and use **Allow
@@ -143,7 +146,7 @@ not fetch missing pages or provide strict write semantics to an older server.
 | Preview fails for a GitHub URL | Use `raw.githubusercontent.com`, not a `github.com/.../blob/...` page |
 | Repository does not refresh | Confirm the HTTPS Git URL clones anonymously and that `packages/*.json` files decode; the refresh notice names files that were skipped |
 | Changed package cannot install | Increase `version`; changed content at the same version and downgrades are refused |
-| Plugin visible but model cannot use it | Enable/grant, reconnect, and check catalog overflow/availability |
+| Extension visible but model cannot use it | Enable/grant, reconnect, and check catalog overflow/availability |
 | App not detected | Matching depends on Android visibility; try manual import and check actual intent handling |
 | Activity unavailable | Install/enable the app, confirm exported activity and exact package/class for that version |
 | Content action unavailable | Use an EVA build with content execution; install/enable the provider app, check authority visibility, and grant its read permission in extension settings |

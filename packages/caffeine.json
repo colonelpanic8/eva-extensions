@@ -1,8 +1,15 @@
 {
   "formatVersion": 1,
   "id": "android.caffeine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "title": "Caffeine",
+  "description": "Turn Caffeine's keep-awake on or off through the activity it exports for that purpose. Caffeine reports no state back, so each action says the request was handed over, never what the screen timeout is now.",
+  "setup": [
+    "Install Caffeine (moe.zhs.caffeine); these actions pin its toggle activity and fail if it is absent."
+  ],
+  "androidPackages": [
+    "moe.zhs.caffeine"
+  ],
   "capabilities": [
     {
       "tool": {
@@ -70,8 +77,5 @@
         }
       }
     }
-  ],
-  "androidPackages": [
-    "moe.zhs.caffeine"
   ]
 }

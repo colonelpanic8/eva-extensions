@@ -1,8 +1,14 @@
 {
   "formatVersion": 1,
   "id": "android.paseo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Paseo",
+  "description": "Drive the Paseo coding-agent app through its paseo:// links and read its workspace and agent catalog. List workspaces or agents, take an id from the rows, then open one or put a prompt in its composer. Paseo resolves hosts, workspaces, and agents itself and shows its own message when an id is unknown, which EVA does not see.",
+  "guidance": "Most Paseo requests take two steps: find the agent or workspace, then act on it. To prompt, open, or check on an existing agent, call list_agents (list_workspaces for a workspace) with q set to words the user used, such as a project, branch, or agent name, and match their description to one row; if several fit, name two or three briefly and ask which. Then use that row's id and serverId in open_agent, draft_agent_prompt, send_agent_prompt, or open_workspace; never guess an id or reuse one from memory. Before prompting, say which agent you picked and the gist of the prompt. Use send_agent_prompt only when the user asked to send, otherwise draft_agent_prompt. For new work that belongs to no existing agent, use new_agent. The catalog is only as fresh as the last time Paseo was open, so when nothing matches, say so and offer open_history.",
+  "setup": [
+    "Install Paseo and open it at least once: it publishes the workspace and agent catalog while the app has been in the foreground, so anything created since then is missing until it opens again.",
+    "To let the send action actually send, turn on Settings, General, Send prompts from links in Paseo. With it off Paseo drafts the prompt instead, and EVA cannot tell the two apart."
+  ],
   "androidPackages": [
     "sh.paseo",
     "sh.paseo.assembly"
@@ -12,7 +18,7 @@
       "tool": {
         "name": "list_workspaces",
         "title": "List Paseo workspaces",
-        "description": "List the workspaces Paseo knows across its hosts, most recently active first. Each row has the workspaceId (id) and host (serverId) that open_workspace and get_recent_messages take, plus name, project, branch, status, agent count, and last activity. This is the lookup step when the user names a workspace by what it is doing rather than by id: search with q, pick the row, then pass its id on. Answers from the catalog Paseo last published while it was open, so a workspace created since then is missing until Paseo is opened again. query is a case-insensitive substring match over the row.",
+        "description": "List the workspaces Paseo knows across its hosts, most recently active first. Each row has the workspaceId (id) and host (serverId) that open_workspace takes, plus name, project, branch, status, agent count, and last activity. Answers from the catalog Paseo last published while it was open, so a workspace created since then is missing until Paseo is opened again. query is a case-insensitive substring match over the row.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -142,81 +148,6 @@
           "provider": "string",
           "status": "string",
           "lastActivityAt": "string"
-        },
-        "maxRows": 50,
-        "maxBytes": 16384
-      }
-    },
-    {
-      "tool": {
-        "name": "get_recent_messages",
-        "title": "Read recent agent messages",
-        "description": "Read the most recent messages of a Paseo agent, newest first, to report what it has been doing: what the user asked, what the agent answered, and which tools it ran. Pass exactly one of agentId or workspaceId; agentId wins if both are given, and neither means the read fails. With workspaceId the rows are merged across that workspace's active agents, so use agentId when the user cares about one session. To answer \"what is the agent working on X doing\", first call list_workspaces with q (or list_agents) to turn the description into an id, then call this with that id. Unlike list_workspaces and list_agents, these rows are fetched live from the Paseo daemon at query time, so the Paseo app process has to be running and its host reachable. When it is not, or the id is unknown, or the daemon times out, the read still succeeds and returns a single row with kind=notice whose text says what happened and what the user can do; report that, do not treat it as agent output. Each row has kind (user, assistant, tool, or notice), createdAt, agentId, agentName, and text clipped to 1000 characters; tool rows are one-line summaries, and agent reasoning and errors are not included. With workspaceId at most the six most recently active agents are read, and a workspace with no active agents returns zero rows. Longer messages and anything older than the returned window are not reachable here; use open_agent so the user can read the full session in Paseo.",
-        "inputSchema": {
-          "type": "object",
-          "properties": {
-            "agentId": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 200,
-              "description": "Paseo agent session ID whose messages to read. Takes precedence over workspaceId."
-            },
-            "workspaceId": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 500,
-              "description": "Paseo workspace ID whose active agents' messages to merge. Give this or agentId, not neither."
-            },
-            "limit": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 50,
-              "description": "Maximum messages to return (Paseo defaults to 10)."
-            }
-          },
-          "required": [],
-          "additionalProperties": false
-        },
-        "annotations": {
-          "readOnlyHint": true,
-          "openWorldHint": false
-        }
-      },
-      "effects": "read",
-      "execution": {
-        "mode": "synchronous",
-        "requiresForeground": false,
-        "maxWaitMillis": 10000
-      },
-      "binding": {
-        "kind": "android.content",
-        "authority": "sh.paseo.assistant",
-        "uri": {
-          "base": "content://sh.paseo.assistant/messages",
-          "query": {
-            "agentId": {
-              "argument": "agentId",
-              "type": "string"
-            },
-            "workspaceId": {
-              "argument": "workspaceId",
-              "type": "string"
-            },
-            "limit": {
-              "argument": "limit",
-              "type": "integer"
-            }
-          }
-        },
-        "projection": {
-          "id": "string",
-          "serverId": "string",
-          "workspaceId": "string",
-          "agentId": "string",
-          "agentName": "string",
-          "kind": "string",
-          "createdAt": "string",
-          "text": "string"
         },
         "maxRows": 50,
         "maxBytes": 16384

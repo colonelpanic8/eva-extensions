@@ -32,7 +32,7 @@ The clone tracks the branch that was the remote's default when it was first
 cloned. Private catalogs are not supported.
 
 A package can also be previewed from a raw HTTPS URL of the file itself, or
-imported from a local file through **Import plugin file**. Each file import gets
+imported from a local file through **Import extension file**. Each file import gets
 its own source and instance identity; reimporting a file is not an update.
 
 ## Versions and installed identity
@@ -51,7 +51,7 @@ not change the canonical contract digest. Array order does.
 An unchanged contract retains grants. A changed contract requires re-enablement
 and write grants again; a larger version does not confer trust. Replacement is
 validated before it overwrites the working installation. Historical receipts
-retain prior attribution. Removing a plugin removes its installed definition;
+retain prior attribution. Removing an extension removes its installed definition;
 it does not uninstall the target app or undo external actions.
 
 Current storage limits are 64 imported instances and 4 MiB total serialized
@@ -63,11 +63,11 @@ an explanation.
 
 Put exact Android application package IDs in `androidPackages`. EVA matches them
 locally and uses icons supplied by installed apps. Hints do not constrain binding
-destinations, authenticate the publisher, install a plugin, or grant execution.
+destinations, authenticate the publisher, install an extension, or grant execution.
 
 Android package visibility can hide an installed app. “Not detected” does not
 prove incompatibility; manual imports remain available. Server-only or generic
-handler plugins should use an empty hint array. Never collect or upload the user's
+handler extensions should use an empty hint array. Never collect or upload the user's
 app inventory as part of repository matching.
 
 ## Maintenance checklist
