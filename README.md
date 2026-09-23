@@ -47,7 +47,7 @@ records only what a package cannot claim about itself.
 | [Mova](packages/mova.json) | Discover templates, todos and agenda rows; create and manage todos through Mova's Android intents | All 15 capabilities verified with EVA Debug and Mova 7.0.1 on a Pixel 11 Pro Fold; the 0.3.0 prompt map and decoded template prompts are JVM-tested only |
 | [Settings](packages/settings.json) | Open a named settings screen through Android's settings actions | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Web](packages/web.json) | Web search, and open an http or https page | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
-| [Paseo](packages/paseo.json) | List workspaces and agents through Paseo's content provider; open them and draft or send prompts through `paseo://` links | Schema and codec decode verified against Paseo's `android-intents` branch; device test deferred |
+| [Paseo](packages/paseo.json) | Find workspaces by project, repository, or branch; read recent workspace or agent messages; open sessions and draft or send prompts through `paseo://` links | Schema and codec decode verified against EVA; Paseo provider unit tests pass; device test deferred |
 
 An additional [HTTP authoring example](docs/examples/http-notes.json) demonstrates
 local filtering and write evidence against a hypothetical API; it is outside the
