@@ -98,7 +98,10 @@ effects as requiring a write grant. Package prose cannot weaken that policy.
 
 Descriptions should state what the action does, prerequisites, and what its
 receipt can establish. Include identifiers in read results if a later action
-needs them. Optional `receipts.success` and `receipts.handlerMissing` are fixed
+needs them. When actions need a lookup first, say so once in the package's
+`guidance`: which read finds the target, how to choose among matches, and which
+identifier the action takes. See [Paseo](../packages/paseo.json) and
+[Mova](../packages/mova.json). Optional `receipts.success` and `receipts.handlerMissing` are fixed
 display text, not templates or evidence.
 
 There is no `enabledByDefault` or per-capability default-grant field. Reads

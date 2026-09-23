@@ -57,6 +57,16 @@ canonical document, so changing them changes the digest and requires
 re-enablement. State requirements, not assurances: an extension cannot vouch for
 its own trustworthiness or verification.
 
+Optional `guidance` (up to 1,500 characters, EVA 0.28 or later) tells the model
+how the extension's tools fit together: typically which lookup identifies the
+target (a workspace, a todo, a destination) and which action then uses the
+returned identifier. EVA adds it to a session's instructions only while one of
+the extension's tools is offered, quoted as attributed external data under EVA's
+own framing. Refer to tools by their `name`. Guidance cannot change EVA's
+rules. In particular, a non-read action never runs after another tool result in
+the same turn, so a lookup-then-act workflow always returns to the user in
+between. Older EVA versions reject the field.
+
 ## Input schema
 
 The root schema is a closed object. Required keys, even for no-argument tools:

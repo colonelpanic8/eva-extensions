@@ -1,9 +1,10 @@
 {
   "formatVersion": 1,
   "id": "android.mova",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "title": "Mova",
   "description": "Read and act on org-mode todos through the Mova Android app: discover capture templates, search and read todos and the agenda through Mova's read-only provider, and create, complete, update, reschedule, or delete todos through mova:// links. Mova uses the server and credentials already configured in the app. Every mutating action shows Mova's own confirmation sheet, and EVA reports that the request was handed over, not that Mova applied it.",
+  "guidance": "Changing an existing todo takes two steps: find it, then change it. To complete, reschedule, update, delete, or open a todo, first call find_todos with the words the user used, or read_agenda when they mean today's or this week's items, and match their description to one row; if several fit, name them briefly and ask which. Then pass that row's id, or its file and pos when id is null, to the action instead of a paraphrased title, and say which todo you picked and what will change. Turn relative dates such as tomorrow or next Friday into YYYY-MM-DD from the current time. To add a todo, use create_todo with a short title; call list_templates first only when the user names a kind of capture or the todo needs template-specific fields. Mova confirms changes on its own sheet, and a receipt means Mova received the request, not that it applied it.",
   "setup": [
     "Install Mova 7.0.1 or later and sign in to the server you want EVA to use.",
     "Expand this extension in Settings and choose Allow provider reads, which grants Mova's READ_TODOS permission on this device; without it the read actions report a setup rejection instead of rows.",

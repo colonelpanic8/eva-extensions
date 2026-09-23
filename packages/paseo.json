@@ -1,9 +1,10 @@
 {
   "formatVersion": 1,
   "id": "android.paseo",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Paseo",
   "description": "Drive the Paseo coding-agent app through its paseo:// links and read its workspace and agent catalog. List workspaces or agents, take an id from the rows, then open one or put a prompt in its composer. Paseo resolves hosts, workspaces, and agents itself and shows its own message when an id is unknown, which EVA does not see.",
+  "guidance": "Most Paseo requests take two steps: find the agent or workspace, then act on it. To prompt, open, or check on an existing agent, call list_agents (list_workspaces for a workspace) with q set to words the user used, such as a project, branch, or agent name, and match their description to one row; if several fit, name two or three briefly and ask which. Then use that row's id and serverId in open_agent, draft_agent_prompt, send_agent_prompt, or open_workspace; never guess an id or reuse one from memory. Before prompting, say which agent you picked and the gist of the prompt. Use send_agent_prompt only when the user asked to send, otherwise draft_agent_prompt. For new work that belongs to no existing agent, use new_agent. The catalog is only as fresh as the last time Paseo was open, so when nothing matches, say so and offer open_history.",
   "setup": [
     "Install Paseo and open it at least once: it publishes the workspace and agent catalog while the app has been in the foreground, so anything created since then is missing until it opens again.",
     "To let the send action actually send, turn on Settings, General, Send prompts from links in Paseo. With it off Paseo drafts the prompt instead, and EVA cannot tell the two apart."
