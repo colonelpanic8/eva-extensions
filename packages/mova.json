@@ -19,7 +19,7 @@
       "tool": {
         "name": "list_templates",
         "title": "List capture templates",
-        "description": "Read capture templates from Mova's active server. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Use key as the template argument to create_todo or capture_todo. prompts_json lists the template's prompts as objects with name, type (string, date, tags, or body), and required; pass values for prompts other than the title and the universal fields through create_todo's prompts argument, keyed by prompt name. Results are bounded and may omit templates.",
+        "description": "Read capture templates from Mova's active server. Requires Mova login; Mova before 7.2.1 also needs READ_TODOS access granted in EVA extension settings. Use key as the template argument to create_todo or capture_todo. prompts_json lists the template's prompts as objects with name, type (string, date, tags, or body), and required; pass values for prompts other than the title and the universal fields through create_todo's prompts argument, keyed by prompt name. Results are bounded and may omit templates.",
         "inputSchema": {
           "type": "object",
           "properties": {},
@@ -59,7 +59,7 @@
       "tool": {
         "name": "find_todos",
         "title": "Find todos",
-        "description": "Search todos on Mova's active server and return bounded rows. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Use a returned id in read_todo, open_todo, or a mutation in the same request; if id is null, use file, pos, and title with an intent action. q is passed to Mova's search. Only the requested page is searched; absence does not prove no todo exists.",
+        "description": "Search todos on Mova's active server and return bounded rows. Requires Mova login; Mova before 7.2.1 also needs READ_TODOS access granted in EVA extension settings. Use a returned id in read_todo, open_todo, or a mutation in the same request; if id is null, use file, pos, and title with an intent action. q is passed to Mova's search. Only the requested page is searched; absence does not prove no todo exists.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -127,7 +127,7 @@
       "tool": {
         "name": "read_todo",
         "title": "Read todo by id",
-        "description": "Read a todo with a known nonempty Org id from Mova's active server. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Use find_todos to discover ids. IDs must be a single path segment; todos without an id can be opened using file, pos, and title through open_todo.",
+        "description": "Read a todo with a known nonempty Org id from Mova's active server. Requires Mova login; Mova before 7.2.1 also needs READ_TODOS access granted in EVA extension settings. Use find_todos to discover ids. IDs must be a single path segment; todos without an id can be opened using file, pos, and title through open_todo.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -190,7 +190,7 @@
       "tool": {
         "name": "read_agenda",
         "title": "Read agenda",
-        "description": "Read a bounded day or week agenda from Mova's active server. Requires Mova login and Android READ_TODOS access granted in EVA extension settings. Defaults are chosen by Mova when omitted. Use returned id, or file/pos/title when id is null, in a later intent action. This reads agenda rows; open_agenda opens Mova's UI.",
+        "description": "Read a bounded day or week agenda from Mova's active server. Requires Mova login; Mova before 7.2.1 also needs READ_TODOS access granted in EVA extension settings. Defaults are chosen by Mova when omitted. Use returned id, or file/pos/title when id is null, in a later intent action. This reads agenda rows; open_agenda opens Mova's UI.",
         "inputSchema": {
           "type": "object",
           "properties": {
