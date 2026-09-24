@@ -238,7 +238,7 @@ handoff display text only. Missing targets do not themselves rewrite the catalog
 ## HTTP binding
 
 Required: `kind: "http"`, `origin`, `method`, `path`, `parameters`,
-`maxResponseBytes`, `result`. Optional: `requestBody`, `credential`.
+`maxResponseBytes`, `result`. Optional: `requestBody`, `credential`, `credentialScheme`.
 
 | Field | Contract |
 | --- | --- |
@@ -247,7 +247,8 @@ Required: `kind: "http"`, `origin`, `method`, `path`, `parameters`,
 | `path` | Starts with a single /; no query, fragment, backslash, percent escapes, whitespace/control characters, or . / .. segments |
 | `parameters` | Up to 64 `{in,name,value}` objects. `in` is path/query; `value` is a slot; name is an ASCII identifier |
 | `requestBody` | Object mapping `{"fields":{...}}`; leaves are slots (scalar or array argument slots) and child objects are further fields mappings; up to 64 fields per object |
-| `credential` | Named basic-auth reference matching `[a-z][a-z0-9_-]{0,63}`; no secret in the document |
+| `credential` | Named credential reference matching `[a-z][a-z0-9_-]{0,63}`; no secret in the document |
+| `credentialScheme` | `basic` (default) or `bearer`; requires `credential`. One scheme per origin |
 | `maxResponseBytes` | Integer 1–1,048,576; oversized responses are rejected, not partially parsed |
 | `result` | Result mapping below |
 
@@ -258,13 +259,18 @@ carry are whole array-typed tool arguments.
 Body field names are ASCII identifiers. URL and encoded body are each bounded to
 16 KiB; incoming tool arguments are also bounded to 16 KiB.
 
-Basic auth is resolved by reference name in EVA's extension secret store, scoped
-to the approved origin (not model credentials). Configure URL/username/password
+Basic or Bearer auth is resolved by reference name in EVA's extension secret store, scoped
+to the approved origin (not model credentials). Configure URL and username/password or Bearer token
 in **Extensions → Settings**. User origin configuration is applied before
 approval/digesting, not supplied by model arguments. Runtime refuses a request
 outside that origin. Redirects and automatic retries/follow-ups are disabled,
 including same-origin redirects. The API must return JSON directly at the URL.
-There is no Bearer/OAuth/custom-header credential format in v1.
+Bearer support requires an EVA release including the Bearer-credentials change;
+older releases reject `credentialScheme`. Omitted schemes retain Basic auth.
+Bearer tokens go only in the Authorization header. Portable configuration stores
+`service/<name>/bearer` with kind `http-bearer`, never the token; the token must
+be provisioned on each device. Missing or mismatched credentials refuse before
+submission. OAuth flows and arbitrary header slots remain unsupported.
 
 ### Result projection
 
