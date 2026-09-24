@@ -37,6 +37,7 @@ records only what a package cannot claim about itself.
 
 | Extension | What it does | Verification |
 | --- | --- | --- |
+| [Dawarich](packages/dawarich.json) | Read personal location samples, detected visits, and saved places through a configurable HTTPS origin and Bearer credential | Dawarich 1.14.0 source contract and EVA JVM fixtures; all five tool requests returned HTTP 200 with projected field types checked against a live 1.14.0 server; no phone verification. Requires EVA Bearer credential support; optional install |
 | [Caffeine](packages/caffeine.json) | Enable/disable keep-awake through a fixed activity | Typed handoff and notification changes verified on Pixel |
 | [Clock](packages/clock.json) | Set alarms and start countdown timers through Android's standard clock app intents | Intent shape mirrors EVA's native alarm/timer adapters; device test pending |
 | [Calendar](packages/calendar.json) | Open a prefilled new event in the calendar app | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
@@ -66,6 +67,10 @@ extension is and needs in its own `description` and `setup`, not in a separate
 document. Validate through EVA's preview and test the actual action before
 claiming device support here. Never commit credentials.
 
-Format documentation was checked against EVA
-`000f95f`, which implements content-provider execution and typed content URI slots.
+Base format documentation was checked against EVA `000f95f`. Bearer credentials
+require the corresponding newer EVA change.
+Dawarich source contract: [1.14.0](https://github.com/Freika/dawarich/tree/1.14.0),
+including `PointsController`, `Visits::Finder`, and `PlacesController`. The
+package uses controller behavior where Swagger omits pagination or lists only
+query-key authentication; keys are sent only as Bearer headers.
 Availability notes distinguish parser support from Android execution support.
