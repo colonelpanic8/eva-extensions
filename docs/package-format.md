@@ -161,10 +161,19 @@ The `execution` contract:
 ```
 
 `mode` (`synchronous` or `handoff`) and `requiresForeground` are required.
-`maxWaitMillis` is optional, null or a positive integer. There are no other
-execution fields. Intents require
+`maxWaitMillis` is optional, null or a positive integer. Intents may also set
+`requiresUnlock: true`, and any capability may set `endsVoiceCall`; there are no
+other execution fields. Intents require
 handoff and foreground true; HTTP/content require synchronous mode. Set
 foreground according to whether the operation needs EVA's visible activity.
+
+`endsVoiceCall` (EVA 0.39 or later) says what a voice call does once this action
+succeeds: `never` (the default), `after_reply` (EVA hangs up after the model's
+reply to the result), or `immediately` (EVA hangs up once current speech has
+played, without reading the result back). Use it for actions that hand the phone's
+audio or screen to another app, such as navigation or anything that listens. A
+refused, failed, or uncertain result never ends the call, the user can override the
+choice per action, and it grants nothing. Older EVA versions reject the field.
 
 Effective wait: user per-instance override, else capability `maxWaitMillis`,
 else EVA's mode default (20 seconds voice, 30 seconds typed; globally adjustable).
