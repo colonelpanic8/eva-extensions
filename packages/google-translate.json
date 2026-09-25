@@ -1,7 +1,7 @@
 {
   "formatVersion": 1,
   "id": "android.google-translate",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "title": "Google Translate",
   "description": "Open Google Translate on the screen that fits the request \u2014 a live spoken conversation, the camera, a transcription of someone speaking, or dictation \u2014 with the languages already set, through the googletranslate: links the app publishes for its own shortcuts. Google Translate reports nothing back, so a receipt says the screen was opened, never that anything was heard, seen, or translated.",
   "setup": [
@@ -56,7 +56,8 @@
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true
+        "requiresForeground": true,
+        "endsVoiceCall": "immediately"
       },
       "receipts": {
         "success": "Live translate opened in Google Translate. Whether it is listening is not verified.",
@@ -180,7 +181,8 @@
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true
+        "requiresForeground": true,
+        "endsVoiceCall": "immediately"
       },
       "receipts": {
         "success": "Transcribe opened in Google Translate. What it hears is not verified.",
@@ -237,7 +239,8 @@
       "effects": "external_handoff",
       "execution": {
         "mode": "handoff",
-        "requiresForeground": true
+        "requiresForeground": true,
+        "endsVoiceCall": "immediately"
       },
       "receipts": {
         "success": "Dictation opened in Google Translate. What it hears is not verified.",
