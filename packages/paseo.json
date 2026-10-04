@@ -1,15 +1,15 @@
 {
   "formatVersion": 1,
   "id": "android.paseo",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "title": "Paseo",
-  "description": "Discover Paseo projects, workspaces, and agents by project, repository, branch, and name; read recent agent messages; and open them or draft or send prompts through paseo:// links. Use catalog ids with their serverId. Workspace message reads include several agents. Links open Paseo's screen and are handoffs, not proof of delivery. Paseo's own installed EVA extension starts agents and sends prompts in the background, including on a locked phone.",
-  "guidance": "Most Paseo requests take several steps. For a vague workspace description, call list_workspaces with one distinctive project, repository, or branch fragment, then pick a row by its metadata; ask which if several fit. Use a row's id and serverId together. A workspace may hold several agents: read_workspace_messages summarizes it; list_agents and read_agent_messages cover one session. Before prompting an agent, identify it with list_agents, and say which agent you picked and the gist of the prompt. When Paseo's installed extension offers send_prompt and create_agent, use them: they work without opening Paseo, even locked. Their state completed means the prompt reached the agent; accepted, submitted, or waiting_for_host means still delivering, so check with request_status and its invocationId; uncertain means never resend. For create_agent, take projectId and serverId from list_projects. Otherwise use the links: send_agent_prompt only when the user asked to send, else draft_agent_prompt; new_agent for new work. When neither the installed extension nor the links cover the request, operate Paseo's screen with EVA's device task (eva.device.task). Never guess or reuse an id from memory. Catalog rows may be stale until Paseo opens; if nothing matches, try another fragment or offer open_history.",
+  "description": "Discover Paseo projects, workspaces, and agents by project, repository, branch, and name; read recent agent messages; and open them or draft or send prompts through paseo:// links. Use catalog ids with their serverId. Workspace message reads include several agents. Links open Paseo's screen and are handoffs, not proof of delivery. Paseo's own installed EVA extension creates workspaces, starts agents, and sends prompts in the background, including on a locked phone.",
+  "guidance": "For a vague workspace description, call list_workspaces with one distinctive project, repository, or branch fragment, then pick a row by its metadata; ask which if several fit. Use a row's id and serverId together. Name a host by serverName (else serverId), but pass serverId, never serverName. A workspace may hold several agents: read_workspace_messages summarizes it; list_agents and read_agent_messages cover one session. Before prompting an agent, identify it with list_agents, and say which agent you picked and the gist of the prompt. When Paseo's installed extension offers send_prompt, create_agent, and create_workspace, use them: they work without opening Paseo, even locked. create_workspace makes a workspace with no agent. Take projectId and serverId from list_projects, and model choices only from list_models. state completed means the prompt reached the agent or the workspace exists, and its receipt names the workspace and serverName; list_workspaces lists it at once. accepted, submitted, or waiting_for_host means still working: check with request_status and its invocationId. uncertain means never resend. Otherwise use the links: send_agent_prompt only when the user asked to send, else draft_agent_prompt; new_agent for new work. If neither covers the request, operate Paseo's screen with EVA's device task (eva.device.task). Never guess or reuse an id from memory. Catalog rows may be stale until Paseo opens; if nothing matches, try another fragment or offer open_history.",
   "setup": [
     "Install Paseo and open it at least once: it publishes the workspace and agent catalog while the app has been in the foreground, so anything created since then is missing until it opens again.",
     "To let the send action actually send, turn on Settings, General, Send prompts from links in Paseo. With it off Paseo drafts the prompt instead, and EVA cannot tell the two apart.",
-    "Needs a Paseo build with the repository catalog column and assistant messages provider. Message reads need the host connected; Paseo builds with the EVA extension service answer them without the app open. An unavailable transcript is a notice row.",
-    "Paseo's own EVA extension sends prompts and starts agents without opening Paseo. EVA enables it with every action for the Paseo assembly and release builds, and Paseo's Let EVA run agents setting starts on. Either can be turned off."
+    "Needs a Paseo build with the repository and serverName catalog columns and the assistant messages and models tables. Message reads need the host connected; Paseo builds with the EVA extension service answer them without the app open. An unavailable transcript is a notice row.",
+    "Paseo's own EVA extension creates workspaces, starts agents, and sends prompts without opening Paseo. EVA enables it with every action for the Paseo assembly and release builds, and Paseo's Let EVA run agents setting starts on. Either can be turned off."
   ],
   "androidPackages": [
     "sh.paseo",
@@ -20,7 +20,7 @@
       "tool": {
         "name": "list_projects",
         "title": "List Paseo projects",
-        "description": "Find the Paseo project to start new work in. Never guess a projectId. Rows are the projects Paseo's hosts have registered: id, serverId, name, and kind. Pass id as projectId and serverId from the same row to create_agent or new_agent. q matches one case-insensitive fragment of the name or an id, not a phrase. If several fit, ask which using name and host. Rows come from the catalog Paseo last published and may be stale.",
+        "description": "Find the Paseo project to start new work in. Never guess a projectId. Rows are the projects Paseo's hosts have registered: id, serverId, serverName (the host's name, empty when Paseo knows none), name, and kind. Pass id as projectId and serverId from the same row to create_agent or new_agent. q matches one case-insensitive fragment of the name or an id, not a phrase. If several fit, ask which using name and serverName. Rows come from the catalog Paseo last published and may be stale.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -80,6 +80,7 @@
         "projection": {
           "id": "string",
           "serverId": "string",
+          "serverName": "string",
           "name": "string",
           "kind": "string"
         },
@@ -89,9 +90,111 @@
     },
     {
       "tool": {
+        "name": "list_models",
+        "title": "List a Paseo host's models",
+        "description": "Find the provider, model, mode, and thinking option values a Paseo host accepts before create_agent; never guess them. One row per selectable model: serverId, serverName, provider, providerLabel, status, model, modelLabel, isDefault, thinkingOptions and modes (comma-separated ids), defaultThinkingOption, defaultMode, and note. Pass provider, model, modeId (one of modes), and thinkingOptionId (one of thinkingOptions) from the same row to create_agent. A row with an empty model is a provider that is not ready or lists no models; note says why. status=notice means Paseo could not ask the host. Use serverId, and projectId when you have one, from the list_projects row the agent will start in. q matches one case-insensitive fragment of a provider or model id or label. Omit model in create_agent to use the default. The host must be connected; a cold Paseo can take up to 20 seconds.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "serverId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Host from a list_projects row."
+            },
+            "projectId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "The id of that same list_projects row; checks availability in that project's directory."
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Only this provider id, such as claude or codex. Exact match."
+            },
+            "q": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "One case-insensitive fragment of a provider or model id or label, such as opus. Not a phrase search."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "description": "Maximum rows to return, 1 to 100 (Paseo defaults to 25)."
+            }
+          },
+          "required": [
+            "serverId"
+          ],
+          "additionalProperties": false
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        }
+      },
+      "effects": "read",
+      "execution": {
+        "mode": "synchronous",
+        "requiresForeground": false,
+        "maxWaitMillis": 20000
+      },
+      "binding": {
+        "kind": "android.content",
+        "authority": "sh.paseo.assistant",
+        "uri": {
+          "base": "content://sh.paseo.assistant/models",
+          "query": {
+            "serverId": {
+              "argument": "serverId",
+              "type": "string"
+            },
+            "projectId": {
+              "argument": "projectId",
+              "type": "string"
+            },
+            "provider": {
+              "argument": "provider",
+              "type": "string"
+            },
+            "q": {
+              "argument": "q",
+              "type": "string"
+            },
+            "limit": {
+              "argument": "limit",
+              "type": "integer"
+            }
+          }
+        },
+        "projection": {
+          "serverId": "string",
+          "serverName": "string",
+          "provider": "string",
+          "providerLabel": "string",
+          "status": "string",
+          "model": "string",
+          "modelLabel": "string",
+          "isDefault": "boolean",
+          "thinkingOptions": "string",
+          "defaultThinkingOption": "string",
+          "modes": "string",
+          "defaultMode": "string",
+          "note": "string"
+        },
+        "maxRows": 100,
+        "maxBytes": 16384
+      }
+    },
+    {
+      "tool": {
         "name": "list_workspaces",
         "title": "List Paseo workspaces",
-        "description": "Find a Paseo workspace before opening or reading it. Never guess a workspaceId. Rows are most recently active first: id, serverId, name, project, repository (Git remote host/path without credentials), branch, status, agentCount, and lastActivityAt. q matches one case-insensitive substring in one column, not a phrase or fuzzy search. Try a distinctive project, repository, or branch fragment; if none matches, try another fragment or list without q at a higher limit. If one row fits, use its id and serverId; if several fit, ask which one using project, repository, name, and branch. Catalog rows may be stale until Paseo opens again and cover at most 100 workspaces.",
+        "description": "Find a Paseo workspace before opening or reading it. Never guess a workspaceId. Rows are most recently active first: id, serverId, serverName (the host's name, empty when Paseo knows none), name, project, repository (Git remote host/path without credentials), branch, status, agentCount, and lastActivityAt. q matches one case-insensitive substring in one column, not a phrase or fuzzy search. Try a distinctive project, repository, or branch fragment; if none matches, try another fragment or list without q at a higher limit. If one row fits, use its id and serverId; if several fit, ask which one using project, repository, name, branch, and serverName. Catalog rows may be stale until Paseo opens again and cover at most 100 workspaces, but a workspace Paseo's installed extension just created is listed at once.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -141,6 +244,7 @@
         "projection": {
           "id": "string",
           "serverId": "string",
+          "serverName": "string",
           "name": "string",
           "project": "string",
           "repository": "string",
@@ -157,7 +261,7 @@
       "tool": {
         "name": "list_agents",
         "title": "List Paseo agents",
-        "description": "Find a Paseo agent session without guessing its id. Rows are most recently active first: id, serverId, workspaceId, name, provider, status, and lastActivityAt. If the user identifies a workspace, find it with list_workspaces, then pass its id and serverId here. A workspace can have several agents; ask which one when the request needs a specific agent and several fit. q matches one case-insensitive fragment, not a phrase. Catalog rows may be stale until Paseo opens again and cover at most 200 unarchived top-level agents.",
+        "description": "Find a Paseo agent session without guessing its id. Rows are most recently active first: id, serverId, serverName (the host's name, empty when Paseo knows none), workspaceId, name, provider, status, and lastActivityAt. If the user identifies a workspace, find it with list_workspaces, then pass its id and serverId here. A workspace can have several agents; ask which one when the request needs a specific agent and several fit. q matches one case-insensitive fragment, not a phrase. Catalog rows may be stale until Paseo opens again and cover at most 200 unarchived top-level agents.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -227,6 +331,7 @@
         "projection": {
           "id": "string",
           "serverId": "string",
+          "serverName": "string",
           "workspaceId": "string",
           "name": "string",
           "provider": "string",
@@ -241,7 +346,7 @@
       "tool": {
         "name": "read_workspace_messages",
         "title": "Read recent Paseo workspace messages",
-        "description": "Read recent messages across the selected workspace's active top-level agents, newest first. First find the workspace with list_workspaces; use id as workspaceId and its serverId from the same row. Each message names its agent and has kind, time, and clipped text. Paseo reads up to six recently active agents. A kind=notice row means Paseo could not read the transcript; report the notice instead of inventing a summary. The host must be connected; a cold Paseo can take up to 20 seconds to answer. This is a read, not a prompt send.",
+        "description": "Read recent messages across the selected workspace's active top-level agents, newest first. First find the workspace with list_workspaces; use id as workspaceId and its serverId from the same row. Each message names its agent and host (serverName) and has kind, time, and clipped text. Paseo reads up to six recently active agents. A kind=notice row means Paseo could not read the transcript; report the notice instead of inventing a summary. The host must be connected; a cold Paseo can take up to 20 seconds to answer. This is a read, not a prompt send.",
         "inputSchema": {
           "type": "object",
           "properties": {
@@ -304,6 +409,7 @@
         "projection": {
           "id": "string",
           "serverId": "string",
+          "serverName": "string",
           "workspaceId": "string",
           "agentId": "string",
           "agentName": "string",
@@ -382,6 +488,7 @@
         "projection": {
           "id": "string",
           "serverId": "string",
+          "serverName": "string",
           "workspaceId": "string",
           "agentId": "string",
           "agentName": "string",
