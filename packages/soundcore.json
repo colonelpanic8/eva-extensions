@@ -1,0 +1,63 @@
+{
+  "formatVersion": 1,
+  "id": "android.soundcore",
+  "version": "0.1.0",
+  "title": "Soundcore",
+  "description": "Turn wind noise reduction on or off, or toggle it, on Liberty 5 Pro earbuds through Soundcore Actions, the modified Soundcore app. A launch only hands the request over; Soundcore confirms the result with the earbuds and shows it as a toast, but EVA does not see it.",
+  "setup": [
+    "Install Soundcore Actions 0.3.0 or newer (com.oceanwing.soundcore) from github.com/colonelpanic8/soundcore-actions; the official Soundcore app lacks the wind reduction activity this package pins.",
+    "Connect Liberty 5 Pro in Soundcore. Soundcore Actions also offers its own background EVA extension, which confirms the change and can read the setting; when it is present, EVA uses it instead of this package."
+  ],
+  "androidPackages": [
+    "com.oceanwing.soundcore"
+  ],
+  "capabilities": [
+    {
+      "tool": {
+        "name": "set_wind_reduction",
+        "title": "Set wind reduction",
+        "description": "Turn wind noise reduction on or off, or toggle it, on the earbuds connected in Soundcore. Supports Liberty 5 Pro. A successful launch is handoff evidence only: the resulting setting is not reported back.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "on",
+                "off",
+                "toggle"
+              ],
+              "description": "on or off sets wind reduction; toggle flips the current setting."
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effects": "write",
+      "execution": {
+        "mode": "handoff",
+        "requiresForeground": true
+      },
+      "receipts": {
+        "success": "Wind reduction request handed to Soundcore. Soundcore shows the confirmed setting; EVA does not see it.",
+        "handlerMissing": "Soundcore Actions 0.3.0 or newer is not installed, or this Soundcore build lacks the wind reduction activity."
+      },
+      "binding": {
+        "kind": "android.intent",
+        "action": "com.colonelpanic.soundcoreactions.SET_WIND_REDUCTION",
+        "package": "com.oceanwing.soundcore",
+        "class": "com.colonelpanic.soundcorepatch.WindActivity",
+        "extras": {
+          "state": {
+            "argument": "state",
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    }
+  ]
+}
