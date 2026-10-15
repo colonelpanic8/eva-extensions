@@ -7,17 +7,19 @@ Packages contain data, never executable code.
 
 ## Install an extension
 
-This repository is EVA's default catalog. In EVA, open **Extensions → Browse**
-and select **Refresh available extensions**; EVA keeps a read-only clone of
+This repository is EVA's default catalog. In EVA, open **Extensions → Browse**.
+EVA lists packages at the commit pinned in your configuration. **Update** fetches
+the catalog's current branch and updates matching extensions according to their
+auto-enable choices. The installed definition remains available offline.
 
 ```text
 https://github.com/colonelpanic8/eva-extensions.git
 ```
 
-and lists every package under `packages/`. Preview and install a package, then enable it in **Installed**. Expand its row to
-grant individual write actions. Reads are enabled with the extension; writes and
-unknown effects require separate approval. Reconnect your conversation to expose
-new actions to the model. Refreshing the repository alone does not install updates.
+Preview and install a package, then configure its actions in **Installed**.
+Portable configuration stores the repository, commit, package path, and stable
+installation identity; definitions stay in this repository. See the
+[repository guide](docs/repositories.md) for pinning and update behavior.
 
 Browse also accepts a raw HTTPS package URL or a JSON file through **Import
 extension file**. Use raw file URLs, not GitHub's HTML “blob” pages.
@@ -49,6 +51,7 @@ records only what a package cannot claim about itself.
 | [Soundcore](packages/soundcore.json) | Turn wind noise reduction on, off, or toggle it on Liberty 5 Pro through Soundcore Actions' wind reduction activity, as the foreground fallback to Soundcore Actions' own background EVA extension, which also confirms the change and reads the setting | Codec decode and intent construction (action, pinned activity, `state` extra) verified by EVA's JVM tests; device test pending |
 | [Mova](packages/mova.json) | Discover templates, todos and agenda rows; create and manage todos through Mova's Android intents, as the foreground fallback to Mova's own background EVA extension | All 15 capabilities were verified with EVA Debug and Mova 7.0.1 on a Pixel 11 Pro Fold. The unattended-write request follows Mova 7.1.1's source contract and has JVM coverage; Mova 7.2.1's own EVA extension completed find, create, update, complete, and delete against an org-agenda-api container at production's revision on a locked API 35 emulator, with Mova force-stopped before each call; physical-device verification is pending. |
 | [Settings](packages/settings.json) | Open a named settings screen through Android's settings actions | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
+| [Waze](packages/waze.json) | Open navigation or search in Waze | Shipped EVA definition; codec and intent construction covered by EVA JVM tests; device verification pending |
 | [Web](packages/web.json) | Web search, and open an http or https page | Codec decode and intent construction verified by EVA's JVM tests; device test pending. Installed by default |
 | [Org memory](packages/org-memory.json) | Search, keep, learn, and forget notes in the user's shared memory served by [org-agenda-api](https://github.com/colonelpanic8/org-agenda-api) 4.7.0+, which their desktop agents also use | Decode and request/result mapping checked with EVA's package codec; endpoints covered by org-agenda-api's tests; device test pending; optional install |
 | [Paseo](packages/paseo.json) | Find projects, and find workspaces by project, repository, or branch, each named with its host; read recent workspace or agent messages; open sessions and draft or send prompts through `paseo://` links, as the foreground fallback to Paseo's own background EVA extension, which also creates workspaces and agents. EVA 0.34.0 installs it by default once Paseo is present | Schema and codec decode verified against EVA, including `list_projects`; Paseo provider unit tests pass; device test deferred |

@@ -14,13 +14,38 @@ packages/
 docs/
 ```
 
-EVA keeps a read-only clone of the configured catalog on the phone. **Extensions
-→ Browse → Refresh available extensions** fetches the clone's branch, fast-forwards
-to the remote head, and lists every `packages/*.json` that decodes. A file that
-does not decode is named in the refresh notice and skipped, so one broken package
-never hides the others; two files declaring the same `id` fail the refresh. Users
-select an entry, review the preview, then install or update it from the exact
-bytes in the clone. Refreshing alone never installs or authorizes anything.
+EVA keeps a read-only clone of the configured catalog on the phone. Opening
+**Extensions → Browse** lists the commit pinned in the configuration. **Update**
+(or **Update all**) fetches the current branch, installs or updates matching
+extensions according to their auto-enable choices, and records the new commit.
+A file that does not decode is named and skipped; duplicate declared IDs fail
+the listing. Previews read the exact listed commit even if a later update moves
+the checkout.
+
+Portable configuration version 4 stores references instead of copying catalog
+JSON into the user's repository:
+
+```yaml
+packages:
+  repositories:
+  - https://github.com/colonelpanic8/eva-extensions.git
+  revisions:
+    https://github.com/colonelpanic8/eva-extensions.git: <full 40-character commit SHA>
+  installed:
+  - instance: <stable installation ID>
+    source: https://github.com/colonelpanic8/eva-extensions.git
+    url: packages/clock.json
+    id: android.clock
+```
+
+Use the package's declared `id` and retain existing instance IDs during migration.
+A package can override the shared pin with its own `revision`, for example when
+its update failed and the previous working version was retained. Restore fetches
+and validates the exact commit before applying configuration; it never silently
+substitutes the latest version. Installed definitions and fetched Git objects
+remain cached for offline use. Fresh restores need network access unless EVA
+ships that exact default definition. File and raw-URL imports retain inline
+`document` content because they have no immutable Git reference.
 
 The catalog remote must be an HTTPS Git URL without credentials, for example:
 
@@ -48,8 +73,9 @@ description, title, receipt, version, or matching-hint changes; the whole
 canonical document participates in grants. Formatting and object-key order do
 not change the canonical contract digest. Array order does.
 
-An unchanged contract retains grants. A changed contract requires re-enablement
-and write grants again; a larger version does not confer trust. Replacement is
+An unchanged contract retains grants. A changed contract invalidates old grants;
+the configured auto-enable policy determines whether EVA enables the new contract.
+An explicit disable is preserved across updates. Replacement is
 validated before it overwrites the working installation. Historical receipts
 retain prior attribution. Removing an extension removes its installed definition;
 it does not uninstall the target app or undo external actions.
