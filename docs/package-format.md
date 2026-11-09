@@ -22,6 +22,8 @@ bounded to 16 levels.
 | `title` | Yes | Nonempty display title, at most 120 characters |
 | `androidPackages` | No | Up to 16 distinct Android package IDs, each at most 200 characters and using the same dotted syntax; defaults to `[]`. Matching hints only |
 | `capabilities` | Yes | 1–64 capability objects, with unique tool names |
+| `settings` | No | Up to 16 user-set, non-secret values; see [Settings](#settings). Requires EVA 0.43 or later |
+| `messaging` | No | Serve EVA's shared messaging tools under a service name; see [Messaging services](#messaging-services). Requires EVA 0.43 or later |
 
 A capability has these fields:
 
@@ -124,6 +126,12 @@ path/selection values. Two forms:
 {"value":true,"type":"boolean"}
 ```
 
+A third form reads a [setting](#settings) the user configured for the installation:
+
+```json
+{"setting":"service","type":"string"}
+```
+
 `type` is string/integer/number/boolean. An argument slot must refer to a tool
 property of the exact same type. Optional `default` is a non-null scalar meeting
 that property's schema; optional `required` is a boolean, default false. A string
@@ -147,6 +155,21 @@ A `select` binding has exactly `kind: "select"`, `argument`, `present`, and
 argument, not its truthiness or a default. Nested selects are rejected. Both
 branches must agree with the capability's execution mode; effects account for
 both.
+
+## Settings
+
+`settings` maps an ASCII identifier to `{type, title, description?, default?, ...}`.
+`type` is `string` (optional `enum` of 1–32 strings, `minLength`, `maxLength` up to
+2000, default 500), `integer` (optional `minimum`, `maximum`), or `boolean`. A
+`default` must satisfy the constraints. A setting slot's type must match its setting.
+
+EVA shows a field per setting under the installed extension and saves the value in
+the user's configuration (`packages.settings`), never in the package. A value that
+no longer fits the constraints falls back to the default; a setting without a
+default must be set before the extension can be enabled. Settings are not part of
+the digest, so changing one needs no re-approval. They are never secrets: a token
+is a named `credential`, provisioned through the extension's server settings and
+kept on the phone. A setting cannot fill a header.
 
 ## Execution, effects, grants
 
@@ -247,7 +270,8 @@ handoff display text only. Missing targets do not themselves rewrite the catalog
 ## HTTP binding
 
 Required: `kind: "http"`, `origin`, `method`, `path`, `parameters`,
-`maxResponseBytes`, `result`. Optional: `requestBody`, `credential`, `credentialScheme`.
+`maxResponseBytes`, `result`. Optional: `requestBody`, `credential`, `credentialScheme`,
+and `operation` (see [Durable operations](#durable-operations)).
 
 | Field | Contract |
 | --- | --- |
@@ -368,6 +392,69 @@ source count, flag source truncation even if the filter found no matches.
 Without total/completeness metadata, no claim is made about data not returned.
 There is no sorting, ranking, joins, calculations, regex, scripting, pagination,
 network follow-up, conditional line formatting, or recursive array search.
+
+### Durable operations
+
+A non-GET HTTP binding may declare an `operation` that its server keeps durably,
+such as a message outbox:
+
+```json
+"operation": {
+  "header": "Idempotency-Key",
+  "status": {"path": "/v1/outbox/{operation}", "state": "/state", "detail": "/detail"},
+  "outcomes": {"queued": "pending", "sending": "pending", "accepted": "completed",
+    "confirmed": "completed", "rejected": "not_executed", "canceled": "not_executed",
+    "ambiguous": "unknown"}
+}
+```
+
+EVA sends `header` with a 64-character hexadecimal key derived from the invocation,
+so a re-delivered invocation names the same server operation; it never generates a
+new key to retry. It then reads `status.path`, with `{operation}` replaced by the
+key, on the same origin and credential, until `state` maps to a final outcome or the
+wait runs out. `outcomes` maps each state string to `completed`, `not_executed`,
+`unknown`, or `pending`; at least one must be `completed`, and an unlisted state is
+`unknown`. Still pending at the deadline reports `handed_off`. HTTP 409 on
+submission is `not_executed`. If the submission gets no usable answer, EVA reads
+the key back: a record continues, 404 is `not_executed`, and an unreadable status is
+`unknown`. The capability's `receipts.success` leads a completed result, and
+`result.pointer` selects text from the final record, which is also the structured
+result. `items` and `evidence` are not allowed with an operation. The `header`
+cannot be a transport header such as `Authorization`.
+
+Item fields of type `stringArray` may use one `*` segment to gather a string from
+every element, such as `/participants/*/name`.
+
+## Messaging services
+
+`messaging` lets a package answer EVA's shared conversation, history, and send
+tools, so the user says "on WhatsApp" rather than learning a new set of tools:
+
+```json
+"messaging": {
+  "service": {"setting": "service"},
+  "label": {"setting": "label"},
+  "conversations": {"tool": "conversations", "query": "query", "limit": "limit"},
+  "contacts": {"tool": "contacts", "query": "query", "limit": "limit"},
+  "history": {"tool": "messages", "conversation": "conversation", "limit": "limit"},
+  "send": {"tool": "send", "conversation": "conversation", "text": "text"},
+  "startChat": {"tool": "start_chat", "recipients": "recipients", "conversation": "/conversation_id"}
+}
+```
+
+`service` and `label` are fixed text or a string setting; the service name uses
+lowercase letters, digits, and hyphens and cannot be `sms` or `notifications`.
+Each operation names a different tool, and the other fields name that tool's
+inputs (`query`, `conversation`, `text`: string; `limit`: integer; `recipients`:
+array of strings). Lookups must be `read`; `send` and `startChat` must not be, and
+`startChat` must be a durable operation whose `conversation` pointer finds the new
+conversation's ID in its final record.
+
+EVA does not offer these tools to the model directly; its shared messaging tools
+call them when the model names the service. Enabling the extension allows the
+lookups, and `send` and `startChat` still need their own grants. Search lines should
+start with the conversation ID, which the model passes back as `conversationRef`
+together with the service. See [Messaging bridge](../packages/messaging-bridge.json).
 
 ## Content binding
 
